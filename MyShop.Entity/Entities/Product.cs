@@ -15,7 +15,12 @@ namespace MyShop.Domain.Entities
         /// 名称
         /// </summary>
         public string Name { get; set; }
-        
+
+        /// <summary>
+        /// 分类id
+        /// </summary>
+        public long CategoryId { get; set; }
+
         /// <summary>
         /// 价格
         /// </summary>

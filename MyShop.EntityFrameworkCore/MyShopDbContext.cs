@@ -22,10 +22,12 @@ namespace MyShop.EntityFrameworkCore
             builder.ConfigureProductStore();
             builder.ConfigureOrderStore();
             builder.ConfigureOrderItemStore();
+            builder.ConfigureCategoryStore();
         }
 
         public DbSet<Product> Products { get; set; }
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderItem> OrderItems { get; set; }
+        public DbSet<Category> Categories { get; set; }
     }
 }

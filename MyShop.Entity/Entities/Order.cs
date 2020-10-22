@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using Volo.Abp.Domain.Entities;
 
@@ -31,6 +32,11 @@ namespace MyShop.Domain.Entities
         /// 总金额
         /// </summary>
         public decimal Total { get; set; }
+
+        /// <summary>
+        /// 地址
+        /// </summary>
+        public string Address { get; set; }
 
     }
 

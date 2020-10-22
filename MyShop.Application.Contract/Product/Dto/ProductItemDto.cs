@@ -6,10 +6,13 @@ namespace MyShop.Application.Contract.Product.Dto
 {
     public class ProductItemDto
     {
+        public long Id { get; set; }
+
         /// <summary>
         /// 名称
         /// </summary>
         public string Name { get; set; }
+        public string CategoryName { get; set; }
 
         /// <summary>
         /// 价格

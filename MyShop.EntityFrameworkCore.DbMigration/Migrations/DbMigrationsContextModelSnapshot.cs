@@ -19,6 +19,26 @@ namespace MyShop.EntityFrameworkCore.DbMigration.Migrations
                 .HasAnnotation("ProductVersion", "3.1.9")
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
 
+            modelBuilder.Entity("MyShop.Domain.Entities.Category", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("CategoryName")
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+
+                    b.Property<DateTime>("CreationTime")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<long>("ParentId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Category");
+                });
+
             modelBuilder.Entity("MyShop.Domain.Entities.Order", b =>
                 {
                     b.Property<long>("Id")
@@ -77,6 +97,9 @@ namespace MyShop.EntityFrameworkCore.DbMigration.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bigint");
 
+                    b.Property<long?>("CategoryId")
+                        .HasColumnType("bigint");
+
                     b.Property<DateTime>("CreationTime")
                         .HasColumnType("datetime(6)");
 
@@ -94,7 +117,16 @@ namespace MyShop.EntityFrameworkCore.DbMigration.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CategoryId");
+
                     b.ToTable("Product");
+                });
+
+            modelBuilder.Entity("MyShop.Domain.Entities.Product", b =>
+                {
+                    b.HasOne("MyShop.Domain.Entities.Category", "Category")
+                        .WithMany("Products")
+                        .HasForeignKey("CategoryId");
                 });
 #pragma warning restore 612, 618
         }

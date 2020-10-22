@@ -23,10 +23,13 @@ namespace MyShop.Application
         public override void ConfigureServices(ServiceConfigurationContext context)
         {
 
+            //添加ObjectMapper注入
             context.Services.AddAutoMapperObjectMapper<MyShopApplicationModule>();
 
+            // Abp AutoMapper设置
             Configure<AbpAutoMapperOptions>(config => 
             {
+                // 添加对应依赖关系Profile
                 config.AddMaps<MyShopApplicationProfile>();
             });
         }

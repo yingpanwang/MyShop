@@ -1,4 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using MyShop.Domain.Entities;
+using MyShop.EntityFrameworkCore.Repositories;
 using System;
 using System.Collections.Generic;
 using System.Text;
