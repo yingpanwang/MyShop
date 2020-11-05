@@ -1,4 +1,5 @@
 ﻿using MyShop.Application.Contract.Order.Dto;
+using MyShop.Application.Core.ResponseModel;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -9,7 +10,7 @@ namespace MyShop.Application.Contract.Order
 {
     public interface IOrderApplicationService:IApplicationService
     {
-        Task<OrderInfoDto> GetAsync(long id);
-        Task<List<OrderInfoDto>> GetListAsync();
+        Task<BaseResult<OrderInfoDto>> GetAsync(long id);
+        Task<PagedResult<OrderInfoDto>> GetListAsync();
     }
 }

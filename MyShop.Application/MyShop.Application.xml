@@ -1,0 +1,122 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>MyShop.Application</name>
+    </assembly>
+    <members>
+        <member name="T:MyShop.Application.BasketApplicationService">
+            <summary>
+            购物车服务
+            </summary>
+        </member>
+        <member name="M:MyShop.Application.BasketApplicationService.#ctor(Volo.Abp.Domain.Repositories.IRepository{MyShop.Domain.Entities.Basket,System.Int64},Volo.Abp.Domain.Repositories.IRepository{MyShop.Domain.Entities.BasketItem,System.Int64})">
+            <summary>
+            构造
+            </summary>
+            <param name="basketRepository"></param>
+            <param name="itemsRepository"></param>
+        </member>
+        <member name="M:MyShop.Application.BasketApplicationService.AddItemAsync(System.Int64,MyShop.Application.Contract.Basket.Dto.InsertBasketItemDto)">
+            <summary>
+            添加物品
+            </summary>
+            <param name="id">购物车id</param>
+            <param name="input">物品信息</param>
+            <returns></returns>
+        </member>
+        <member name="M:MyShop.Application.BasketApplicationService.CreateAsync(MyShop.Application.Contract.Basket.Dto.InsertBasketItemDto)">
+            <summary>
+            创建购物车
+            </summary>
+            <param name="input">物品信息</param>
+            <returns></returns>
+        </member>
+        <member name="M:MyShop.Application.BasketApplicationService.DeleteItemAsync(System.Int64)">
+            <summary>
+            删除购物车信息
+            </summary>
+            <param name="id">物品信息id</param>
+            <returns></returns>
+        </member>
+        <member name="T:MyShop.Application.MyShopApplicationModule">
+            <summary>
+            项目依赖
+            </summary>
+        </member>
+        <member name="T:MyShop.Application.OrderApplicationService">
+            <summary>
+            订单服务
+            </summary>
+        </member>
+        <member name="M:MyShop.Application.OrderApplicationService.#ctor(Volo.Abp.Domain.Repositories.IRepository{MyShop.Domain.Entities.Order})">
+            <summary>
+            构造
+            </summary>
+            <param name="orderRepository"></param>
+        </member>
+        <member name="M:MyShop.Application.OrderApplicationService.GetAsync(System.Int64)">
+            <summary>
+            获取订单信息
+            </summary>
+            <param name="id">订单id</param>
+            <returns></returns>
+        </member>
+        <member name="M:MyShop.Application.OrderApplicationService.GetListAsync">
+            <summary>
+            获取订单列表
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:MyShop.Application.ProductApplicationService">
+            <summary>
+            商品服务
+            </summary>
+        </member>
+        <member name="F:MyShop.Application.ProductApplicationService._productRepository">
+            <summary>
+            自定义商品仓储
+            </summary>
+        </member>
+        <member name="F:MyShop.Application.ProductApplicationService._categoryRepository">
+            <summary>
+            商品类别仓储
+            </summary>
+        </member>
+        <member name="M:MyShop.Application.ProductApplicationService.#ctor(MyShop.Domain.IRepositories.IProductRepository,Volo.Abp.Domain.Repositories.IRepository{MyShop.Domain.Entities.Category})">
+            <summary>
+            构造
+            </summary>
+            <param name="productRepository">自定义商品仓储</param>
+            <param name="categoryRepository">商品类别仓储</param>
+        </member>
+        <member name="M:MyShop.Application.ProductApplicationService.GetAsync(System.Int64)">
+            <summary>
+            获取商品信息
+            </summary>
+            <param name="id">商品id</param>
+            <returns></returns>
+        </member>
+        <member name="M:MyShop.Application.ProductApplicationService.GetPage(MyShop.Application.Contract.Base.BasePageInput)">
+            <summary>
+            获取分页商品列表
+            </summary>
+            <param name="page">分页信息</param>
+            <returns></returns>
+        </member>
+        <member name="M:MyShop.Application.UserApplicationService.Login(MyShop.Application.Contract.User.Dto.UserLoginDto)">
+            <summary>
+            登录
+            </summary>
+            <param name="loginInfo">登录信息</param>
+            <returns></returns>
+        </member>
+        <member name="M:MyShop.Application.UserApplicationService.Register(MyShop.Application.Contract.User.Dto.UserRegisterDto,System.Threading.CancellationToken)">
+            <summary>
+            注册
+            </summary>
+            <param name="registerInfo">注册信息</param>
+            <param name="cancellationToken">取消令牌</param>
+            <returns></returns>
+        </member>
+    </members>
+</doc>

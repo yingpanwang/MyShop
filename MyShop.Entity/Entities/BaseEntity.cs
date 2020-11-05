@@ -9,4 +9,9 @@ namespace MyShop.Domain.Entities
     {
         public DateTime CreationTime { get; set; } = DateTime.Now;
     }
+
+    public class BaseGuidEntity : Entity<Guid>
+    {
+        public DateTime CreationTime { get; set; } = DateTime.Now;
+    }
 }

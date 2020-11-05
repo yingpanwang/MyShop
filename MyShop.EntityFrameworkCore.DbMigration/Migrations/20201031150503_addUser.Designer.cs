@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MyShop.EntityFrameworkCore.DbMigration;
 using Volo.Abp.EntityFrameworkCore;
@@ -9,9 +10,10 @@ using Volo.Abp.EntityFrameworkCore;
 namespace MyShop.EntityFrameworkCore.DbMigration.Migrations
 {
     [DbContext(typeof(DbMigrationsContext))]
-    partial class DbMigrationsContextModelSnapshot : ModelSnapshot
+    [Migration("20201031150503_addUser")]
+    partial class addUser
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -168,9 +170,9 @@ namespace MyShop.EntityFrameworkCore.DbMigration.Migrations
 
             modelBuilder.Entity("MyShop.Domain.Entities.User", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("char(36)");
+                        .HasColumnType("bigint");
 
                     b.Property<string>("Account")
                         .IsRequired()
@@ -181,6 +183,9 @@ namespace MyShop.EntityFrameworkCore.DbMigration.Migrations
 
                     b.Property<int>("Age")
                         .HasColumnType("int");
+
+                    b.Property<DateTime>("CreationTime")
+                        .HasColumnType("datetime(6)");
 
                     b.Property<string>("NickName")
                         .HasColumnType("longtext CHARACTER SET utf8mb4");

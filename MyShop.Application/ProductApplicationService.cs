@@ -1,4 +1,5 @@
 ﻿
+using Microsoft.AspNetCore.Authorization;
 using MyShop.Application.Contract.Base;
 using MyShop.Application.Contract.Product;
 using MyShop.Application.Contract.Product.Dto;
@@ -70,17 +71,6 @@ namespace MyShop.Application
 
             return new PagedResultDto<ProductItemDto>(count,products);
         }
-
-        /// <summary>
-        /// 获取商品列表
-        /// </summary>
-        /// <returns></returns>
-        public async Task<List<ProductItemDto>> GetListAsync()
-        {
-            var products = await _productRepository.GetListAsync();
-            return ObjectMapper.Map<List<Product>, List<ProductItemDto>>(products);
-        }
-
 
         private IQueryable<ProductItemDto> Query(Expression<Func<Product,bool>> expression = null) 
         {

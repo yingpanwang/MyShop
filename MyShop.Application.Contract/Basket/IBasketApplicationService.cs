@@ -10,8 +10,8 @@ namespace MyShop.Application.Contract.Basket
 {
     public interface IBasketApplicationService:IApplicationService
     {
-        Task<bool> InsertAsync(InsertBasketItemDto input);
-        Task<bool> DeleteAsync(long id);
-        Task<bool> RemoveAsync(long id);
+        Task<bool> CreateAsync(InsertBasketItemDto input);
+        Task<bool> AddItemAsync(long id,InsertBasketItemDto input);
+        Task<bool> DeleteItemAsync(long id);
     }
 }

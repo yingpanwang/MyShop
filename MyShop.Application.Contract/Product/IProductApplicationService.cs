@@ -11,7 +11,6 @@ namespace MyShop.Application.Contract.Product
 {
     public interface IProductApplicationService :IApplicationService
     {
-        Task<List<ProductItemDto>> GetListAsync();
         IPagedResult<ProductItemDto> GetPage(BasePageInput page);
         Task<ProductItemDto> GetAsync(long id);
     }

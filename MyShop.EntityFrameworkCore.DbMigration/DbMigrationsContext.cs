@@ -23,6 +23,10 @@ namespace MyShop.EntityFrameworkCore.DbMigration
             builder.ConfigureOrderStore();
             builder.ConfigureOrderItemStore();
             builder.ConfigureCategoryStore();
+            builder.ConfigureBasketAndItemsStore();
+
+            // 用户配置
+            builder.ConfigureUserStore();
         }
 
     }

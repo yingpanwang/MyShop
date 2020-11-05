@@ -21,7 +21,7 @@ namespace MyShop.Domain.Entities
         /// <summary>
         /// 用户
         /// </summary>
-        public long UserId { get; set; }
+        public Guid UserId { get; set; }
 
         /// <summary>
         /// 订单状态

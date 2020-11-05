@@ -1,8 +1,14 @@
-﻿using MyShop.Application.Contract.Order;
+﻿using Microsoft.AspNetCore.Authorization;
+using MyShop.Application.Contract.Base;
+using MyShop.Application.Contract.Order;
 using MyShop.Application.Contract.Order.Dto;
+using MyShop.Application.Core.ResponseModel;
 using MyShop.Domain.Entities;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Dynamic.Core;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 using Volo.Abp.Application.Services;
@@ -10,28 +16,50 @@ using Volo.Abp.Domain.Repositories;
 
 namespace MyShop.Application
 {
+
+    /// <summary>
+    /// 订单服务
+    /// </summary>
+    [Authorize]
     public class OrderApplicationService : ApplicationService, IOrderApplicationService
     {
 
-        private readonly IRepository<Order> _orderRepository;
+        private readonly IRepository<Order,long> _orderRepository;
 
-        public OrderApplicationService(IRepository<Order> orderRepository) 
+        /// <summary>
+        /// 构造
+        /// </summary>
+        /// <param name="orderRepository"></param>
+        public OrderApplicationService(IRepository<Order,long> orderRepository) 
         {
             _orderRepository = orderRepository;
         }
 
-        public async Task<OrderInfoDto> GetAsync(long id)
+        /// <summary>
+        /// 获取订单信息
+        /// </summary>
+        /// <param name="id">订单id</param>
+        /// <returns></returns>
+        public async Task<BaseResult<OrderInfoDto>> GetAsync(long id)
         {
             var order = await _orderRepository.GetAsync(g => g.Id == id);
-
-            return ObjectMapper.Map<Order, OrderInfoDto>(order);
+            
+            return BaseResult<OrderInfoDto>.Success(ObjectMapper.Map<Order, OrderInfoDto>(order));
         }
 
-        public async Task<List<OrderInfoDto>> GetListAsync()
+        /// <summary>
+        /// 获取订单列表
+        /// </summary>
+        /// <returns></returns>
+        public async Task<Core.ResponseModel.PagedResult<OrderInfoDto>> GetListAsync(BasePageInput input)
         {
-            var orders = await _orderRepository.GetListAsync();
+            var user = CurrentUser;
 
-            return ObjectMapper.Map<List<Order>, List<OrderInfoDto>>(orders);
+            var orders = _orderRepository
+                .Where(p => p.UserId == user.Id);
+            var result = ObjectMapper.Map<List<Order>,List<OrderInfoDto>>(orders.PageBy(input).ToList());
+            
+            return Core.ResponseModel.PagedResult<OrderInfoDto>.Success(orders.Count(), result);
         }
     }
 }

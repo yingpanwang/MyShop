@@ -7,6 +7,8 @@ namespace MyShop.Application.Contract.Basket.Dto
 {
     public class InsertBasketItemDto
     {
+        public long BasketId { get; set; }
+
         public long ProductId { get; set; }
 
         public string ProductName { get; set; }

@@ -1,0 +1,98 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>MyShop.Application.Contract</name>
+    </assembly>
+    <members>
+        <member name="P:MyShop.Application.Contract.Base.BasePageInput.Keyword">
+            <summary>
+            关键字
+            </summary>
+        </member>
+        <member name="P:MyShop.Application.Contract.Order.Dto.CreateOrderDto.Total">
+            <summary>
+            总金额
+            </summary>
+        </member>
+        <member name="P:MyShop.Application.Contract.Order.Dto.OrderInfoDto.OrderNo">
+            <summary>
+            订单号
+            </summary>
+        </member>
+        <member name="P:MyShop.Application.Contract.Order.Dto.OrderInfoDto.UserId">
+            <summary>
+            用户
+            </summary>
+        </member>
+        <member name="P:MyShop.Application.Contract.Order.Dto.OrderInfoDto.OrderStatus">
+            <summary>
+            订单状态
+            </summary>
+        </member>
+        <member name="P:MyShop.Application.Contract.Order.Dto.OrderInfoDto.Total">
+            <summary>
+            总金额
+            </summary>
+        </member>
+        <member name="P:MyShop.Application.Contract.Product.Dto.ProductItemDto.Name">
+            <summary>
+            名称
+            </summary>
+        </member>
+        <member name="P:MyShop.Application.Contract.Product.Dto.ProductItemDto.Price">
+            <summary>
+            价格
+            </summary>
+        </member>
+        <member name="P:MyShop.Application.Contract.Product.Dto.ProductItemDto.Description">
+            <summary>
+            描述
+            </summary>
+        </member>
+        <member name="P:MyShop.Application.Contract.Product.Dto.ProductItemDto.Stock">
+            <summary>
+            库存
+            </summary>
+        </member>
+        <member name="T:MyShop.Application.Contract.User.Dto.UserRegisterDto">
+            <summary>
+            用户注册信息
+            </summary>
+        </member>
+        <member name="P:MyShop.Application.Contract.User.Dto.UserRegisterDto.Account">
+            <summary>
+            账号
+            </summary>
+        </member>
+        <member name="P:MyShop.Application.Contract.User.Dto.UserRegisterDto.NickName">
+            <summary>
+            用户名
+            </summary>
+        </member>
+        <member name="P:MyShop.Application.Contract.User.Dto.UserRegisterDto.Age">
+            <summary>
+            年龄
+            </summary>
+        </member>
+        <member name="P:MyShop.Application.Contract.User.Dto.UserRegisterDto.Tel">
+            <summary>
+            电话
+            </summary>
+        </member>
+        <member name="P:MyShop.Application.Contract.User.Dto.UserRegisterDto.Address">
+            <summary>
+            地址
+            </summary>
+        </member>
+        <member name="P:MyShop.Application.Contract.User.Dto.UserRegisterDto.Password">
+            <summary>
+            密码
+            </summary>
+        </member>
+        <member name="P:MyShop.Application.Contract.User.Dto.UserRegisterDto.ConfirmPassword">
+            <summary>
+            确认密码
+            </summary>
+        </member>
+    </members>
+</doc>
