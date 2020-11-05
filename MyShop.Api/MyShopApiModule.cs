@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -12,7 +13,9 @@ using MyShop.Api.Middleware;
 using MyShop.Application;
 using MyShop.Application.Contract.Order;
 using MyShop.Application.Contract.Product;
+using MyShop.Application.Core.ResponseModel;
 using MyShop.EntityFrameworkCore;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -135,9 +138,17 @@ namespace MyShop.Api
                         {
                             return Task.CompletedTask;
                         },
-                        OnChallenge = context => 
+                        OnChallenge = async context => 
                         {
-                            return Task.CompletedTask;
+
+                            BaseResult<object> result = new BaseResult<object>(ResponseResultCode.Unauthorized,"未授权",null);
+                            context.HandleResponse();
+                            context.Response.ContentType = "application/json;utf-8";
+
+                            context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+
+                            await context.Response.WriteAsync(JsonConvert.SerializeObject(result), Encoding.UTF8);
+
                         },
                         OnForbidden = context => 
                         {

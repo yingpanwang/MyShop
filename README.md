@@ -1,418 +1,160 @@
-# 尝试从零开始构建我的商城 (一) :使用Abp vNext快速一个简单的商城项目
 
-
+# 尝试从零开始构建我的商城 (二) :使用JWT保护我们的信息安全，完善Swagger配置
+[toc]
 ## 前言
 
+### GitHub地址
+
+> https://github.com/yingpanwang/MyShop/tree/dev_jwt
+> 此文对应分支 dev_jwt
 ### 此文目的
 
-本文将尝试使用Abp vNext 搭建一个商城系统并尽可能从业务，架构相关方向优化升级项目结构，并会将每次升级所涉及的模块及特性以blog的方式展示出来。
+&nbsp;上一篇文章中，我们使用Abp vNext构建了一个可以运行的简单的API,但是整个站点没有一个途径去对我们的API访问有限制，导致API完全是裸露在外的，如果要运行正常的商业API是完全不可行的，所以接下来我们会通过使用JWT(Json Web Toekn)的方式实现对API的访问数据限制。
 
-### Abp vNext 介绍
+#### JWT简介
 
-#### 什么是Abp vNext
+###### 什么是JWT
+
+现在API一般是分布式且要求是无状态的，所以传统的Session无法使用，JWT其实类似于早期API基于Cookie自定义用户认证的形式，只是JWT的设计更为紧凑和易于扩展开放，使用方式更加便利基于JWT的鉴权机制类似于http协议也是无状态的，它不需要在服务端去保留用户的认证信息或者会话信息。
+
+###### JWT的组成
+
+JWT （以下简称Token）的组成分为三部分 header，playload，signature 完整的Token长这样
+
+    eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoid2FuZ3lpbmdwYW4iLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjIiLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9tb2JpbGVwaG9uZSI6IjEyMiIsImV4cCI6MTYwNDI4MzczMSwiaXNzIjoiTXlTaG9wSXNzdWVyIiwiYXVkIjoiTXlTaG9wQXVkaWVuY2UifQ.U-2bEniEz82ECibBzk6C5tuj2JAdqISpbs5VrpA8W9s
+
+**header**
+
+包含类型及算法信息
+
+``` JSON
+{
+  "alg": "HS256",
+  "typ": "JWT"
+}
+```
+通过base64加密后得到了 
+
+    eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
+
+**playload**
+包含标准的公开的生命和私有的声明,不建议定义敏感信息，因为该信息是可以被解密的
+
+部分公开的声明
+
+* iss: jwt签发者
+* aud: 接收jwt的一方
+* exp: jwt的过期时间，这个过期时间必须要大于签发时间
+
+私有的声明
+
+*  http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name : 名称
+*  http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier: 标识
+*  http://schemas.xmlsoap.org/ws/2005/05/identity/claims/mobilephone: 电话
+``` JSON
+{
+  "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name": "wangyingpan",
+  "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier": "2",
+  "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/mobilephone": "122",
+  "exp": 1604283731,
+  "iss": "MyShopIssuer",
+  "aud": "MyShopAudience"
+}
+```
+通过base64加密后得到了 
+
+    eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoid2FuZ3lpbmdwYW4iLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjIiLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9tb2JpbGVwaG9uZSI6IjEyMiIsImV4cCI6MTYwNDI4MzczMSwiaXNzIjoiTXlTaG9wSXNzdWVyIiwiYXVkIjoiTXlTaG9wQXVkaWVuY2UifQ
+
+**signature**
+
+signature 由 三部分信息组成，分别为base64加密后的**header**，**playload**用"."连接起来，通过声明的算法加密使用 服务端**secret** 作为盐(**salt**)
+
+三部分通过“.”连接起三部分组成了最终的Token
 
 ## 代码实践
 
-> Abp vNext 使用 DDD 领域驱动设计 是非常方便的，但是由于本人认为自身没有足够的功力玩转DDD，所以开发中使用的是基于贫血模型的设计的开发，而不是遵照DDD的方式
+### 添加用户服务
 
-### Domain 领域层
-
-#### 1.添加引用
-
- > 通过 **Nuget** 安装 **Volo.Abp.Ddd.Domain**
-
-#### 2.定义模块
-
-创建 **MyShopDomainModule.cs** 作为Domain的模块，Domain不依赖任何外部模块，本体也没有什么相关配置，所以只需要继承AbpModule即可
+##### 1.Domain中定义用户实体User
 
 ``` csharp
-namespace MyShop.Domain
-{
-    public class MyShopDomainModule:AbpModule
+
+ public class User:BaseGuidEntity
     {
-    }
-}
-```
+        [Required]
+        public string Account { get; set; }
 
-#### 3.定义实体
-
-###### BaseEntity 实体基类
-
-定义BaseEntity并继承由**Volo.Abp.Ddd.Domain**提供的Entity并添加**CreationTime**属性
-
-``` csharp
-    public class BaseEntity :Entity<long>
-    {
-        public DateTime CreationTime { get; set; } = DateTime.Now;
-    }
-```
-
-###### Product 商品
-
-继承**BaseEntity**类 添加相关属性
-``` csharp
-   /// <summary>
-    /// 商品信息
-    /// </summary>
-    public class Product :BaseEntity
-    {
         /// <summary>
         /// 名称
         /// </summary>
-        public string Name { get; set; }
+        public string NickName { get; set; }
 
         /// <summary>
-        /// 分类id
+        /// 真实名称
         /// </summary>
-        public long CategoryId { get; set; }
+        public string RealName { get; set; }
 
         /// <summary>
-        /// 价格
+        /// 年龄
         /// </summary>
-        public decimal? Price { get; set; }
-        
-        /// <summary>
-        /// 描述
-        /// </summary>
-        public string Description { get; set; }
+        public int Age { get; set; }
 
         /// <summary>
-        /// 库存
+        /// 手机号
         /// </summary>
-        public decimal Stock { get; set; }
-    }
-```
-###### Order 订单
-
-继承**BaseEntity**类 添加相关属性
-``` csharp
-    /// <summary>
-    /// 订单
-    /// </summary>
-    public class Order:BaseEntity
-    {
+        public string Tel { get; set; }
 
         /// <summary>
-        /// 订单号
-        /// </summary>
-        public Guid OrderNo { get; set; } = Guid.NewGuid();
-        
-        /// <summary>
-        /// 用户
-        /// </summary>
-        public long UserId { get; set; }
-
-        /// <summary>
-        /// 订单状态
-        /// </summary>
-        public OrderStatus OrderStatus { get; set; }
-
-        /// <summary>
-        /// 总金额
-        /// </summary>
-        public decimal Total { get; set; }
-
-        /// <summary>
-        /// 地址
+        /// 住址
         /// </summary>
         public string Address { get; set; }
 
+        /// <summary>
+        /// 密码
+        /// </summary>
+        public string Password { get; set; }
+
+        /// <summary>
+        /// 用户状态
+        /// </summary>
+        public UserStatusEnum UserStatus { get; set; }
+    }
+    public enum UserStatusEnum 
+    {
+        Registered,//已注册
+        Incompleted, // 未完善信息
+        Completed,//完善信息
+        Locked, // 锁定
+        Deleted // 删除
     }
 
-    public enum OrderStatus 
-    {
-        Created,
-        Cancel,
-        Paid,
-    }
 ```
 
-### Application 应用层实现
+##### 2.EntityFrameworkCore 中添加Table
 
-#### 1.添加引用
-
- > 通过 **Nuget** 安装 **Volo.Abp.Application**
- > 通过 **Nuget** 安装 **Volo.Abp.AutoMapper**
-
-#### 2.定义模块
-
-创建 **MyShopApplicationModule.cs** ,继承自AbpModule，并且依赖Domain以及ApplicationContract层和后续使用的AutoMapper，所以对应DependsOn中需要添加对应依赖
-
+**UserCreatingExtension.cs**
 ``` csharp
-    /// <summary>
-    /// 项目模块依赖
-    /// </summary>
-    [DependsOn(typeof(MyShopApplicationContractModule),
-        typeof(MyShopDomainModule))]
 
-    /// 组件依赖
-    [DependsOn(typeof(AbpAutoMapperModule))]
-    public class MyShopApplicationModule:AbpModule
+public static class UserCreatingExtension
     {
-        public override void ConfigureServices(ServiceConfigurationContext context)
+        public static void ConfigureUserStore(this ModelBuilder builder)
         {
-
-            //添加ObjectMapper注入
-            context.Services.AddAutoMapperObjectMapper<MyShopApplicationModule>();
-
-            // Abp AutoMapper设置
-            Configure<AbpAutoMapperOptions>(config => 
+            Check.NotNull(builder, nameof(builder));
+            builder.Entity<User>(option =>
             {
-                // 添加对应依赖关系Profile
-                config.AddMaps<MyShopApplicationProfile>();
+                option.ToTable("User");
+                option.ConfigureByConvention();
             });
         }
     }
-```
-
-#### 3.实现相关服务
-
-这里由于我们使用AutoMapper所以需要创建Profile并添加相关映射关系
-
-##### Profile定义
-
-``` csharp
-
-namespace MyShop.Application.AutoMapper.Profiles
-{
-    public class MyShopApplicationProfile:Profile
-    {
-        public MyShopApplicationProfile() 
-        {
-            CreateMap<Product, ProductItemDto>().ReverseMap();
-
-            CreateMap<Order, OrderInfoDto>().ReverseMap();
-        }
-    }
-}
 
 ```
 
-##### 服务实现
-
-Abp 可以很方便的将我们的服务向外暴露，通过简单配置可以自动生成对应接口,只需要需要暴露的服务
-继承ApplicationService。
-
->   **Abp**在确定服务方法的**HTTP Method**时使用命名约定:
-    **Get**: 如果方法名称以**GetList**,**GetAll**或**Get**开头.
-    **Put**: 如果方法名称以**Put**或**Update**开头.
-    **Delete**: 如果方法名称以**Delete**或**Remove**开头.
-    **Post**: 如果方法名称以**Create**,**Add**,**Insert**或**Post**开头.
-    **Patch**: 如果方法名称以**Patch**开头.
-    **其他情况**, **Post** 为 默认方式.
-
-###### OrderApplicationService
-
-``` csharp
-public class OrderApplicationService : ApplicationService, IOrderApplicationService
-    {
-
-        private readonly IRepository<Order> _orderRepository;
-
-        public OrderApplicationService(IRepository<Order> orderRepository) 
-        {
-            _orderRepository = orderRepository;
-        }
-
-        public async Task<OrderInfoDto> GetAsync(long id)
-        {
-            var order = await _orderRepository.GetAsync(g => g.Id == id);
-
-            return ObjectMapper.Map<Order, OrderInfoDto>(order);
-        }
-
-        public async Task<List<OrderInfoDto>> GetListAsync()
-        {
-            var orders = await _orderRepository.GetListAsync();
-
-            return ObjectMapper.Map<List<Order>, List<OrderInfoDto>>(orders);
-        }
-    }
-```
-###### ProductApplicationService
-
-``` csharp
- /// <summary>
-    /// 商品服务
-    /// </summary>
-    public class ProductApplicationService : ApplicationService, IProductApplicationService
-    {
-        /// <summary>
-        /// 自定义商品仓储
-        /// </summary>
-        private readonly IProductRepository _productRepository;
-
-        /// <summary>
-        /// 商品类别仓储
-        /// </summary>
-        private readonly IRepository<Category> _categoryRepository;
-
-        /// <summary>
-        /// 构造
-        /// </summary>
-        /// <param name="productRepository">自定义商品仓储</param>
-        /// <param name="categoryRepository">商品类别仓储</param>
-        public ProductApplicationService(IProductRepository productRepository,
-            IRepository<Category> categoryRepository)
-        {
-            _productRepository = productRepository;
-            _categoryRepository = categoryRepository;
-        }
-
-        /// <summary>
-        /// 获取商品信息
-        /// </summary>
-        /// <param name="id">商品id</param>
-        /// <returns></returns>
-        public async Task<ProductItemDto> GetAsync(long id)
-        {
-            return await Task.FromResult(Query(p => p.Id == id).FirstOrDefault(p =>p.Id == id));
-        }
-
-        /// <summary>
-        /// 获取分页商品列表
-        /// </summary>
-        /// <param name="page">分页信息</param>
-        /// <returns></returns>
-        public IPagedResult<ProductItemDto> GetPage(BasePageInput page)
-        {
-            var query = Query()
-                .WhereIf(!string.IsNullOrEmpty(page.Keyword), w => w.Name.StartsWith(page.Keyword));
-               
-            var count =  query.Count();
-
-            var products = query.PageBy(page).ToList();
-
-            return new PagedResultDto<ProductItemDto>(count,products);
-        }
-
-        /// <summary>
-        /// 获取商品列表
-        /// </summary>
-        /// <returns></returns>
-        public async Task<List<ProductItemDto>> GetListAsync()
-        {
-            var products = await _productRepository.GetListAsync();
-            return ObjectMapper.Map<List<Product>, List<ProductItemDto>>(products);
-        }
-
-
-        private IQueryable<ProductItemDto> Query(Expression<Func<Product,bool>> expression = null) 
-        {
-            var products = _productRepository.WhereIf(expression != null, expression);
-
-            var categories = _categoryRepository;
-
-            var data = from product in products
-                       join category in categories on product.CategoryId equals category.Id into temp
-                       from result in temp.DefaultIfEmpty()
-                       select new ProductItemDto
-                       {
-                           Id = product.Id,
-                           Description = product.Description,
-                           Name = product.Name,
-                           Price = product.Price,
-                           Stock = product.Stock,
-                           CategoryName = result.CategoryName,
-                       };
-
-            return data;
-        }
-    }
-```
-
-### Application.Contract 应用层抽象
-
-#### 1.添加引用
-
- > 通过 **Nuget** 安装 **Volo.Abp.Application.Contract**
-
-#### 2.定义模块
-
-创建 **MyShopApplicationContractModule.cs** ,继承自AbpModule，并且没有对外依赖
-
-``` csharp
-   public class MyShopApplicationContractModule:AbpModule
-    {
-
-    }
-```
-#### 3.定义Contract
-
-###### IOrderApplicationService
-
-``` csharp
-    public interface IOrderApplicationService:IApplicationService
-    {
-        Task<OrderInfoDto> GetAsync(long id);
-        Task<List<OrderInfoDto>> GetListAsync();
-    }
-```
-
-###### IProductApplicationService
-
-``` csharp
-    public interface IProductApplicationService :IApplicationService
-    {
-        Task<List<ProductItemDto>> GetListAsync();
-        IPagedResult<ProductItemDto> GetPage(BasePageInput page);
-        Task<ProductItemDto> GetAsync(long id);
-    }
-```
-
-### Admin.Application 管理后台应用层
-
-这里和Application层差不多，但是为了方便编写代码所以Admin.Contract和Admin.Application 放在了一个项目中，这里我定义了**IBaseAdminCRUDApplicationService**接口并且实现了一个**BaseAdminCRUDApplicationService**实现了一些简单的CRUD的方法暂时作为后台数据管理的方法,并且为了区分后台管理接口和平台接口在自动注册为api时加上**admin**前缀
-``` csharp
-
-            service.Configure((AbpAspNetCoreMvcOptions options) =>
-            {
-                // 平台接口和后台管理接口暂时放在一个站点下
-                options.ConventionalControllers.Create(typeof(Application.ProductApplicationService).Assembly);
-                options.ConventionalControllers.Create(typeof(Application.OrderApplicationService).Assembly);
-
-                // 区分接口 请求路径加上admin
-                options.ConventionalControllers.Create(typeof(Admin.Application.Services.ProductApplicationService).Assembly, options =>
-                 {
-                     options.RootPath = "admin";
-                 });
-            });
-
-```
-#### 1.添加引用
-
- > 通过 **Nuget** 安装 **Volo.Abp.Application**
- > 通过 **Nuget** 安装 **Volo.Abp.AutoMapper**
-
-#### 2.定义模块
-
-创建 **MyShopAdminApplicationModule.cs** ,继承自AbpModule，并且依赖Domain以及ApplicationContract层和后续使用的AutoMapper，所以对应DependsOn中需要添加对应依赖
-
-``` csharp
-    [DependsOn(typeof(MyShopDomainModule))]
-    [DependsOn(typeof(AbpAutoMapperModule))]
-    public class MyShopAdminApplicationModule:AbpModule
-    {
-        public override void ConfigureServices(ServiceConfigurationContext context)
-        {
-            context.Services.AddAutoMapperObjectMapper<MyShopAdminApplicationModule>();
-
-            Configure<AbpAutoMapperOptions>(config =>
-            {
-                config.AddMaps<MyShopAdminApplicationProfile>();
-            });
-        }
-    }
-```
-
-### EntityFreaworkCore数据访问层中实现Repository
-> 通过Nuget添加 **Volo.Abp.EntityFrameworkCore.MySQL**
-> 
-###### 定义DbContext
+**MyShopDbContext.cs**
 
 ``` csharp
 
-    [ConnectionStringName("Default")]
+[ConnectionStringName("Default")]
     public class MyShopDbContext:AbpDbContext<MyShopDbContext>
     {
         public MyShopDbContext(DbContextOptions<MyShopDbContext> options) : base(options) 
@@ -426,169 +168,32 @@ public class OrderApplicationService : ApplicationService, IOrderApplicationServ
             builder.ConfigureOrderStore();
             builder.ConfigureOrderItemStore();
             builder.ConfigureCategoryStore();
+            builder.ConfigureBasketAndItemsStore();
+
+            // 配置用户表
+            builder.ConfigureUserStore();
         }
 
         public DbSet<Product> Products { get; set; }
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderItem> OrderItems { get; set; }
         public DbSet<Category> Categories { get; set; }
-    }
+        public DbSet<Basket> Basket { get; set; }
+        public DbSet<BasketItem> BasketItems { get; set; }
 
-```
-这里通过扩展方法分开了实体的一些定义
-
-
-###### ConfigureProductStore
-
-``` csharp
-    public static class ProductCreatingExtension
-    {
-        public static void ConfigureProductStore(this ModelBuilder builder)
-        {
-            Check.NotNull(builder, nameof(builder));
-            builder.Entity<Product>(option =>
-            {
-                option.ToTable("Product");
-                option.ConfigureByConvention();
-            });
-        }
-    }
-```
-
-###### ConfigureOrderStore
-
-``` csharp
-    public static class OrderCreatingExtension
-    {
-        public static void ConfigureOrderStore(this ModelBuilder builder)
-        {
-            Check.NotNull(builder, nameof(builder));
-            builder.Entity<Order>(option =>
-            {
-                option.ToTable("Order");
-                option.ConfigureByConvention();
-            });
-        }
-    }
-```
-
-###### ConfigureOrderItemStore
-
-``` csharp
-    public static class OrderItemsCreatingExtension
-    {
-        public static void ConfigureOrderItemStore(this ModelBuilder builder)
-        {
-            Check.NotNull(builder, nameof(builder));
-            builder.Entity<OrderItem>(option =>
-            {
-                option.ToTable("OrderItem");
-                option.ConfigureByConvention();
-            });
-        }
-    }
-```
-
-###### ConfigureCategoryStore
-
-``` csharp
-    public static class CategoryCreatingExtension
-    {
-
-        public static void ConfigureCategoryStore(this ModelBuilder builder) 
-        {
-            Check.NotNull(builder, nameof(builder));
-            builder.Entity<Category>(option =>
-            {
-                option.ToTable("Category");
-                option.ConfigureByConvention();
-            });
-        }
-    }
-```
-
-
-由于目前Abp vNext提供的 IRepository<TEntity,TKey> 接口已经满足我们当前的使用需要，也提供了IQuaryable 接口，所以灵活组装的能力也有，所以不另外实现自定义仓储，不过这里还是预先准备一个自定义的ProductRepsitory
-
-###### 在Domain层中定义IProductRepository
-
-``` csharp
-
-    public interface IProductRepository : IRepository<Product, long>
-    {
-        IQueryable<Product> GetProducts(long id);
+        //添加用户表
+        public DbSet<User> Users { get; set; }
     }
 
 ```
 
-###### EntityFrameworkCore数据访问层中实现IProductRepository
- 
- 继承EfCoreRepository以方便实现 IRepository接口中提供的基本方法和 DbContext的访问，并实现IProductRepository
- ``` csharp
+##### 3.迁移生成User表
 
-    public class ProductRepository : EfCoreRepository<MyShopDbContext, Product, long>, IProductRepository
-    {
-        public ProductRepository(IDbContextProvider<MyShopDbContext> dbContextProvider) : base(dbContextProvider)
-        {
-        }
-
-        public IQueryable<Product> GetProducts(long id) 
-        {
-            return DbContext.Products.Where(p => p.Id == id);
-        }
-    }
-
- ```
-
-#### 定义模块，注入默认仓储
-``` csharp
-
-    [DependsOn(typeof(AbpEntityFrameworkCoreMySQLModule))]
-    public class MyShopEntityFrameworkCoreModule :AbpModule
-    {
-        public override void ConfigureServices(ServiceConfigurationContext context)
-        {
-            context.Services.AddAbpDbContext<MyShopDbContext>(option=> 
-            {
-
-                // 如果只是用了 entity， 请将 includeAllEntities 设置为 true 否则会提示异常，导致所属仓储无法注入
-                option.AddDefaultRepositories(true);
-            });
-
-            Configure<AbpDbContextOptions>(option=> 
-            {
-                option.UseMySQL();
-            });
-            
-        }
-    }
-
-```
-
-
-### Migration 迁移
-
-#### 1.添加引用
-######
-
-> 通过Nuget安装 **Microsoft.EntityFrameworkCore.Tools**
-###### 添加Domain，EntiyFrameworkCore数据访问层的引用
-
-``` csharp
- <ItemGroup>
-    <ProjectReference Include="..\MyShop.EntityFrameworkCore\MyShop.EntityFrameworkCore.csproj" />
-    <ProjectReference Include="..\MyShop.Entity\MyShop.Domain.csproj" />
-  </ItemGroup>
-```
-
-#### 2.定义DbContext
-
-这里我们使用了之前在EntifyFrameworkCore中定义的一些实体配置
-
+首先添加用户表定义
 
 ``` csharp
 
-    [ConnectionStringName("Default")]
+[ConnectionStringName("Default")]
     public class DbMigrationsContext : AbpDbContext<DbMigrationsContext>
     {
         public DbMigrationsContext(DbContextOptions<DbMigrationsContext> options) : base(options)
@@ -602,126 +207,242 @@ public class OrderApplicationService : ApplicationService, IOrderApplicationServ
             builder.ConfigureOrderStore();
             builder.ConfigureOrderItemStore();
             builder.ConfigureCategoryStore();
+            builder.ConfigureBasketAndItemsStore();
+
+            // 用户配置
+            builder.ConfigureUserStore();
         }
 
     }
 
 ```
 
-#### 3.定义模块
+然后打开程序包管理控制台切换为迁移项目**MyShop.EntityFrameworkCore.DbMigration**并输入
 
-``` csharp 
+* >Add-Migration "AddUser"
 
-    [DependsOn(typeof(MyShopEntityFrameworkCoreModule))]
-    public class MyShopEntityFrameworkCoreMigrationModule:AbpModule
-    {
-        public override void ConfigureServices(ServiceConfigurationContext context)
-        {
-            context.Services.AddAbpDbContext<DbMigrationsContext>();
-        }
-    }
+* >Update-Database
 
-```
+此时User表就已经生成并对应Migration文件
 
-#### 4.执行迁移
 
-打开程序包管理器控制台，由于我们的连接字符串定义在Api层，我已我们需要将Api设置为启动项目，并将程序包管理器控制台默认程序切换为我们的迁移层Migration并执行一下指令
+##### 4.Application中构建UserApplication
 
-1.添加迁移文件
-
-> Add-Migration "Init"
-
-执行完后我们会在Migrations文件夹目录下得到相关的迁移文件
-
-2.执行迁移
-
->Update-Database
-
-执行完成后就可以打开数据库查看我们生成的表了
- 
-### Api 接口层
-
-#### 1.建立项目
-
-接下来建立AspNetCore WebAPI 项目 并命名为MyShop.Api作为我们对外暴露的API，并添加Abp Vnext AspNetCore.MVC包
-
-> 通过Nuget 安装 Volo.Abp.AspNetCore.Mvc
-
-###### StartUp
+###### Api中添加配置AppSetting.json
 
 ``` csharp
 
-namespace MyShop.Api
-{
-    public class Startup
-    {
-        // This method gets called by the runtime. Use this method to add services to the container.
-        // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
-        public void ConfigureServices(IServiceCollection services)
-        {
-            // 注册模块
-            services.AddApplication<MyShopApiModule>();
-        }
+"Jwt": {
+    "SecurityKey": "1111111111111111111111111111111",
+    "Issuer": "MyShopIssuer", 
+    "Audience": "MyShopAudience",
+    "Expires": 30 // 过期分钟
+  }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+```
+
+###### IUserApplicationService
+
+``` csharp
+
+namespace MyShop.Application.Contract.User
+{
+    public interface IUserApplicationService
+    {
+        Task<BaseResult<TokenInfo>> Register(UserRegisterDto registerInfo, CancellationToken cancellationToken);
+        Task<BaseResult<TokenInfo>> Login(UserLoginDto loginInfo);
+    }
+}
+
+```
+
+###### AutoMapper Profiles中添加映射
+
+``` csharp
+
+namespace MyShop.Application.AutoMapper.Profiles
+{
+    public class MyShopApplicationProfile:Profile
+    {
+        public MyShopApplicationProfile() 
         {
-            // 初始化
-            app.InitializeApplication();
+            CreateMap<Product, ProductItemDto>().ReverseMap();
+               
+            CreateMap<Order, OrderInfoDto>().ReverseMap();
+
+            CreateMap<Basket, BasketDto>().ReverseMap();
+            CreateMap<BasketItem, BasketItemDto>().ReverseMap();
+
+            CreateMap<InsertBasketItemDto, BasketItem>().ReverseMap();
+
+            // 用户注册信息映射
+            CreateMap<UserRegisterDto, User>()
+                .ForMember(src=>src.UserStatus ,opt=>opt.MapFrom(src=> UserStatusEnum.Registered))
+                .ForMember(src=>src.Password , opt=>opt.MapFrom(src=> EncryptHelper.MD5Encrypt(src.Password,string.Empty)));
+
         }
     }
 }
 
 ```
 
-###### Program
+###### UserApplicationService
 
+``` csharp
 
-由于我们使用了 Abp vNext 中的Autofac 所以需要添加 Abp vNext Autofac 模块 并注册Autofac
-
-> 通过Nuget 安装 Volo.Abp.Autofac
-
-``` csharp 
-
-namespace MyShop.Api
+namespace MyShop.Application
 {
-    public class Program
+    /// <summary>
+    /// 用户服务
+    /// </summary>
+    public class UserApplicationService : ApplicationService, IUserApplicationService
     {
-        public static void Main(string[] args)
+        private readonly IConfiguration _configuration;
+        private readonly IRepository<User,Guid> _userRepository;
+
+        /// <summary>
+        /// 构造
+        /// </summary>
+        /// <param name="userRepository">用户仓储</param>
+        /// <param name="configuration">配置信息</param>
+        public UserApplicationService(IRepository<User, Guid> userRepository, IConfiguration configuration) 
         {
-            CreateHostBuilder(args).Build().Run();
+            _userRepository = userRepository;
+            _configuration = configuration;
         }
 
-        public static IHostBuilder CreateHostBuilder(string[] args) =>
-            Host.CreateDefaultBuilder(args)
-                .ConfigureWebHostDefaults(webBuilder =>
-                {
-                    webBuilder.UseStartup<Startup>();
-                })
-                .UseAutofac();
+        /// <summary>
+        /// 登录
+        /// </summary>
+        /// <param name="loginInfo">登录信息</param>
+        /// <returns></returns>
+        public async Task<BaseResult<TokenInfo>> Login(UserLoginDto loginInfo)
+        {
+            if (string.IsNullOrEmpty(loginInfo.Account) || string.IsNullOrEmpty(loginInfo.Password))
+                return BaseResult<TokenInfo>.Failed("用户名密码不能为空!");
+
+            var user = await Task.FromResult(_userRepository.FirstOrDefault(p => p.Account == loginInfo.Account));
+            if (user == null)
+            {
+                return BaseResult<TokenInfo>.Failed("用户名密码错误!");
+            }
+            string md5Pwd = EncryptHelper.MD5Encrypt(loginInfo.Password);
+            if (user.Password != md5Pwd)
+            {
+                return BaseResult<TokenInfo>.Failed("用户名密码错误!");
+            }
+
+            var claims = GetClaims(user);
+
+            var token = GenerateToken(claims);
+
+            return BaseResult<TokenInfo>.Success(token);
+        }
+
+        /// <summary>
+        /// 注册
+        /// </summary>
+        /// <param name="registerInfo">注册信息</param>
+        /// <param name="cancellationToken">取消令牌</param>
+        /// <returns></returns>
+        public async Task<BaseResult<TokenInfo>> Register(UserRegisterDto registerInfo,CancellationToken cancellationToken)
+        {
+            var user = ObjectMapper.Map<UserRegisterDto, User>(registerInfo);
+
+            var registeredUser = await _userRepository.InsertAsync(user, true, cancellationToken);
+
+            var claims = GetClaims(user);
+
+            var token = GenerateToken(claims);
+
+            return BaseResult<TokenInfo>.Success(token);
+        }
+
+        #region Token生成
+
+        private IEnumerable<Claim> GetClaims(User user) 
+        {
+            var claims = new[]
+            {
+                new Claim(AbpClaimTypes.UserName,user.NickName),
+                new Claim(AbpClaimTypes.UserId,user.Id.ToString()),
+                new Claim(AbpClaimTypes.PhoneNumber,user.Tel),
+                new Claim(AbpClaimTypes.SurName, user.UserStatus == UserStatusEnum.Completed ?user.RealName:string.Empty)
+            };
+            return claims;
+        }
+
+        /// <summary>
+        /// 生成token
+        /// </summary>
+        /// <param name="claims">声明</param>
+        /// <returns></returns>
+        private TokenInfo GenerateToken(IEnumerable<Claim> claims) 
+        {
+            // 密钥
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:SecurityKey"]));
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+            // 过期时间
+            int expires = string.IsNullOrEmpty(_configuration["Expires"]) ? 30 : Convert.ToInt32(_configuration["Expires"]);
+            
+            //生成token
+            var token = new JwtSecurityToken(
+                    issuer: _configuration["Jwt:Issuer"],
+                    audience: _configuration["Jwt:Audience"],
+                    claims: claims,
+                    expires: DateTime.Now.AddMinutes(expires),
+                    signingCredentials: creds);
+
+            return new TokenInfo()
+            {
+                Expire = expires,
+                Token = new JwtSecurityTokenHandler().WriteToken(token)
+            };
+        }
+
+        #endregion
     }
 }
 
 ```
 
-###### MyShopApiModule 
+### 启用认证并添加相关Swagger配置
 
-这里我们使用了Swagger 作为Api文档自动生成，所以需要添加相关Nuget包，并且依赖了MyShopEntityFrameworkCoreModule和 MyShopApplicationModule,MyShopAdminApplicationModule 所以需要添加相关依赖及项目引用,
-并且使用了Api作为迁移连接字符串所在项目，所以还需要添加EF的Design包
+在需要启动认证的站点模块中添加以下代码（MyShopApiModule）
 
-###### Nuget
-> 通过Nuget 安装 Swashbuckle.AspNetCore
-> 通过Nuget 安装 Microsoft.EntityFrameworkCore.Design
-
-###### 项目引用
-
-> MyShop.AdminApplication
-> MyShop.Application
-> MyShop.EntitFrameworkCore
-> MyShop.EntitFrameworkCore.DbMigration
-
+###### MyShopApiModule.cs
 
 ``` csharp
+
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.PlatformAbstractions;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
+using MyShop.Admin.Application;
+using MyShop.Admin.Application.Services;
+using MyShop.Api.Middleware;
+using MyShop.Application;
+using MyShop.Application.Contract.Order;
+using MyShop.Application.Contract.Product;
+using MyShop.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Volo.Abp;
+using Volo.Abp.AspNetCore;
+using Volo.Abp.AspNetCore.Mvc;
+using Volo.Abp.AspNetCore.Mvc.Conventions;
+using Volo.Abp.AspNetCore.Mvc.ExceptionHandling;
+using Volo.Abp.Autofac;
+using Volo.Abp.Modularity;
 
 namespace MyShop.Api
 {
@@ -735,39 +456,25 @@ namespace MyShop.Api
         {
             var service = context.Services;
 
-            // 跨域
-            context.Services.AddCors(options =>
-            {
-                options.AddPolicy("AllowAll", builder =>
-                {
-                    builder.AllowAnyOrigin()
-                        .SetIsOriginAllowedToAllowWildcardSubdomains()
-                        .AllowAnyHeader()
-                        .AllowAnyMethod();
-                });
-            });
+            // 配置jwt
+            ConfigureJwt(service);
 
-            // 自动生成控制器
+            // 配置跨域
+            ConfigureCors(service);
+
+            // 配置swagger
+            ConfigureSwagger(service);
+
             service.Configure((AbpAspNetCoreMvcOptions options) =>
             {
                 options.ConventionalControllers.Create(typeof(Application.ProductApplicationService).Assembly);
                 options.ConventionalControllers.Create(typeof(Application.OrderApplicationService).Assembly);
+                options.ConventionalControllers.Create(typeof(Application.UserApplicationService).Assembly);
+                options.ConventionalControllers.Create(typeof(Application.BasketApplicationService).Assembly);
                 options.ConventionalControllers.Create(typeof(Admin.Application.Services.ProductApplicationService).Assembly, options =>
-                 {
-                     options.RootPath = "admin";
-                 });
-            });
-
-            // swagger
-            service.AddSwaggerGen(options =>
-            {
-                options.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo()
                 {
-                    Title = "MyShopApi",
-                    Version = "v0.1"
+                    options.RootPath = "admin";
                 });
-                options.DocInclusionPredicate((docName, predicate) => true);
-                options.CustomSchemaIds(type => type.FullName);
             });
 
         }
@@ -782,23 +489,406 @@ namespace MyShop.Api
                 app.UseDeveloperExceptionPage();
             }
 
+            // 跨域
             app.UseCors("AllowAll");
+
+            // swagger
             app.UseSwagger();
             app.UseSwaggerUI(options =>
             {
                 options.SwaggerEndpoint("/swagger/v1/swagger.json", "MyShopApi");
             });
+
             app.UseRouting();
+
+            //添加jwt验证 注意：必须先添加认证再添加授权中间件，且必须添加在UseRouting 和UseEndpoints之间
+            app.UseAuthentication();
+            app.UseAuthorization();
+
             app.UseConfiguredEndpoints();
         }
+
+        #region ServicesConfigure
+
+        private void ConfigureJwt(IServiceCollection services) 
+        {
+            var configuration = services.GetConfiguration();
+            services
+                .AddAuthentication(options=> 
+                {
+                    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                })
+                .AddJwtBearer(options=> 
+                {
+                    options.RequireHttpsMetadata = false;// 开发环境为false
+
+                    options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters()
+                    {
+                        ValidateIssuer = true,//是否验证Issuer
+                        ValidateAudience = true,//是否验证Audience
+                        ValidateLifetime = true,//是否验证失效时间
+                        ClockSkew = TimeSpan.FromSeconds(30), // 偏移时间,所以实际过期时间 = 给定过期时间+偏移时间
+                        ValidateIssuerSigningKey = true,//是否验证SecurityKey
+                        ValidAudience = configuration["Jwt:Audience"],//Audience
+                        ValidIssuer = configuration["Jwt:Issuer"],//Issuer，这两项和前面签发jwt的设置一致
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:SecurityKey"]))//拿到SecurityKey
+                    };
+
+                    // 事件
+                    options.Events = new JwtBearerEvents()
+                    {
+                        OnAuthenticationFailed = context => 
+                        {
+                            return Task.CompletedTask;
+                        },
+                        OnChallenge = context => 
+                        {
+                            // 验证失败
+                            BaseResult<object> result = new BaseResult<object>(ResponseResultCode.Unauthorized,"未授权",null);
+                            context.HandleResponse();
+                            context.Response.ContentType = "application/json;utf-8";
+
+                            context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+
+                            await context.Response.WriteAsync(JsonConvert.SerializeObject(result), Encoding.UTF8);
+                        },
+                        OnForbidden = context => 
+                        {
+                            return Task.CompletedTask;
+                        },
+                        OnMessageReceived = context =>
+                        {
+                            return Task.CompletedTask;
+                        }
+                    };
+                });
+        }
+
+        private void ConfigureCors(IServiceCollection services) 
+        {
+            services.AddCors(options =>
+            {
+                options.AddPolicy("AllowAll", builder =>
+                {
+                    builder.AllowAnyOrigin()
+                        .SetIsOriginAllowedToAllowWildcardSubdomains()
+                        .AllowAnyHeader()
+                        .AllowAnyMethod();
+                });
+            });
+        }
+
+        private void ConfigureSwagger(IServiceCollection services)
+        {
+            services.AddSwaggerGen(options =>
+            {
+                options.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo()
+                {
+                    Title = "MyShopApi",
+                    Version = "v0.1"
+                });
+                options.DocInclusionPredicate((docName, predicate) => true);
+                options.CustomSchemaIds(type => type.FullName);
+
+                var basePath = PlatformServices.Default.Application.ApplicationBasePath;
+                options.IncludeXmlComments(Path.Combine(basePath, "MyShop.Application.xml"));
+                options.IncludeXmlComments(Path.Combine(basePath, "MyShop.Application.Contract.xml"));
+
+                #region 添加请求认证
+
+                //Bearer 的scheme定义
+                var securityScheme = new OpenApiSecurityScheme()
+                {
+                    Description = "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
+                    Name = "Authorization",
+                    //参数添加在头部
+                    In = ParameterLocation.Header,
+                    //使用Authorize头部
+                    Type = SecuritySchemeType.Http,
+                    //内容为以 bearer开头
+                    Scheme = "Bearer",
+                    BearerFormat = "JWT"
+                };
+
+                //把所有方法配置为增加bearer头部信息
+                var securityRequirement = new OpenApiSecurityRequirement
+                    {
+                        {
+                                new OpenApiSecurityScheme
+                                {
+                                    Reference = new OpenApiReference
+                                    {
+                                        Type = ReferenceType.SecurityScheme,
+                                        Id = "MyShopApi"
+                                    }
+                                },
+                                new string[] {}
+                        }
+                    };
+
+                options.AddSecurityDefinition("MyShopApi", securityScheme);
+                options.AddSecurityRequirement(securityRequirement);
+
+                #endregion
+
+            });
+        }
+
+        #endregion
     }
 }
 
+
 ```
 
-至此我们的简单的项目就搭建好了
+### 统一响应格式
 
+###### 基础 BaseResult
+定义全体响应类型父类，并提供基础响应成功及响应失败结果创建静态函数
+``` csharp
+    /// <summary>
+    /// 基础响应信息
+    /// </summary>
+    /// <typeparam name="T">响应数据类型</typeparam>
+    public class BaseResult<T> where T:class
+    {
+        /// <summary>
+        /// 响应码
+        /// </summary>
+        public ResponseResultCode Code { get; set; }
 
+        /// <summary>
+        /// 响应消息
+        /// </summary>
+        public string Message { get; set; }
 
+        /// <summary>
+        /// 响应数据
+        /// </summary>
+        public virtual T Data { get; set; }
 
+        /// <summary>
+        /// 响应成功信息
+        /// </summary>
+        /// <param name="data">响应数据</param>
+        /// <returns></returns>
+        public static BaseResult<T> Success(T data,string message = "请求成功") => new BaseResult<T>(ResponseResultCode.Success,message, data);
 
+        /// <summary>
+        /// 响应失败信息
+        /// </summary>
+        /// <param name="message">响应信息</param>
+        /// <returns></returns>
+        public static BaseResult<T> Failed(string message = "请求失败!") 
+            => new BaseResult<T> (ResponseResultCode.Failed,message,null);
+
+        /// <summary>
+        /// 响应异常信息
+        /// </summary>
+        /// <param name="message">响应信息</param>
+        /// <returns></returns>
+        public static BaseResult<T> Error(string message = "请求失败!")
+            => new BaseResult<T>(ResponseResultCode.Error, message, null);
+
+        /// <summary>
+        /// 构造响应信息
+        /// </summary>
+        /// <param name="code">响应码</param>
+        /// <param name="message">响应消息</param>
+        /// <param name="data">响应数据</param>
+        public BaseResult(ResponseResultCode code,string message,T data) 
+        {
+            this.Code = code;
+            this.Message = message;
+            this.Data = data;
+        }
+    }
+
+    public enum ResponseResultCode 
+    {
+        Success = 200,
+        Failed = 400,
+        Unauthorized = 401,
+        Error = 500
+    }
+```
+
+###### 列表 ListResult
+派生自BaseResult并添加泛型为IEnumerable
+``` csharp
+ /// <summary>
+    /// 列表响应
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public class ListResult<T> : BaseResult<IEnumerable<T>> where T : class
+    {
+        public ListResult(ResponseResultCode code, string message, IEnumerable<T> data) 
+        : base(code, message, data)
+        {
+        }
+    }
+```
+
+###### 分页列表 PagedResult
+派生自BaseResult并添加PageData分页数据类型泛型
+``` csharp
+public class PagedResult<T> : BaseResult<PageData<T>>
+    {
+        public PagedResult(ResponseResultCode code, string message, PageData<T> data) : base(code, message, data)
+        {
+            
+        }
+
+        /// <summary>
+        /// 响应成功信息
+        /// </summary>
+        /// <param name="total">数据总条数</param>
+        /// <param name="list">分页列表信息</param>
+        /// <returns></returns>
+        public static PagedResult<T> Success(int total,IEnumerable<T> list,string message= "请求成功") 
+            => new PagedResult<T> (ResponseResultCode.Success,message,new PageData<T> (total,list));
+
+    }
+
+    /// <summary>
+    /// 分页数据
+    /// </summary>
+    /// <typeparam name="T">数据类型</typeparam>
+    public class PageData<T> 
+    {
+
+        /// <summary>
+        /// 构造
+        /// </summary>
+        /// <param name="total">数据总条数</param>
+        /// <param name="list">数据集合</param>
+        public PageData(int total,IEnumerable<T> list) 
+        {
+            this.Total = total;
+            this.Data = list;
+        }
+
+        /// <summary>
+        /// 数据总条数
+        /// </summary>
+        public int Total { get; set; }
+
+        /// <summary>
+        /// 数据集合
+        /// </summary>
+        public IEnumerable<T> Data { get; set; }
+    }
+```
+
+### 自定义异常
+
+在我们添加自定义异常时需要先将abp vNext 默认提供的全局异常过滤器移除。
+在Module的ConfigureServices中添加移除代码
+
+``` csharp
+
+    // 移除Abp异常过滤器
+    Configure<MvcOptions>(options =>
+    {
+        var index = options.Filters.ToList().FindIndex(filter => filter is ServiceFilterAttribute attr && attr.ServiceType.Equals(typeof(AbpExceptionFilter)));
+
+        if (index > -1)
+            options.Filters.RemoveAt(index);
+    });
+
+```
+
+定义MyShop自定义异常中间件
+
+``` csharp
+
+/// <summary>
+    /// MyShop异常中间件
+    /// </summary>
+    public class MyShopExceptionMiddleware 
+    {
+        private readonly RequestDelegate _next;
+        public MyShopExceptionMiddleware(RequestDelegate next) 
+        {
+            _next = next;
+        }
+        public async Task InvokeAsync(HttpContext context)
+        {
+            try
+            {
+                await _next(context);
+            }
+            catch (Exception ex)
+            {
+                await HandleException(context, ex);
+            }
+            finally 
+            {
+                await HandleException(context);
+            }
+        }
+
+        private async Task HandleException(HttpContext context, Exception ex = null) 
+        {
+
+            BaseResult<object> result = null; ;
+
+            bool handle = true;
+            if (context.Response.StatusCode == (int)HttpStatusCode.Unauthorized)
+            {
+                result = new BaseResult<object>(ResponseResultCode.Unauthorized, "未授权!", null);
+            }
+            else if (context.Response.StatusCode == (int)HttpStatusCode.InternalServerError)
+            {
+                result = new BaseResult<object>(ResponseResultCode.Error, "服务繁忙!", null);
+            }
+            else 
+            {
+                handle = false;
+            }
+
+            if(handle) await context.Response.WriteAsync(JsonConvert.SerializeObject(result), Encoding.UTF8);
+        }
+    }
+
+```
+
+为了方便通过**IApplicationBuilder**调用这里我们添加个扩展方法用于方便添加我们的自定义异常中间件
+
+``` csharp
+
+    public static class MiddlewareExtensions
+    {
+
+        /// <summary>
+        /// MyShop异常中间件
+        /// </summary>
+        /// <param name="app"></param>
+        /// <returns></returns>
+        public static IApplicationBuilder UseMyShopExceptionMiddleware(this IApplicationBuilder app) 
+        {
+            app.UseMiddleware<MyShopExceptionMiddleware>();
+            return app;
+        }
+    }
+
+```
+
+最后在 Module类中 添加对应的中间件
+
+``` csharp
+
+app.UseMyShopExceptionMiddleware();
+
+```
+
+## 程序运行
+
+###### 访问Order列表
+【显示401未授权】
+###### 访问登录接口获取token
+
+###### 使用token访问Order列表
+
+###### 手动抛出异常显示自定义异常响应

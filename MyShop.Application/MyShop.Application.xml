@@ -48,7 +48,7 @@
             订单服务
             </summary>
         </member>
-        <member name="M:MyShop.Application.OrderApplicationService.#ctor(Volo.Abp.Domain.Repositories.IRepository{MyShop.Domain.Entities.Order})">
+        <member name="M:MyShop.Application.OrderApplicationService.#ctor(Volo.Abp.Domain.Repositories.IRepository{MyShop.Domain.Entities.Order,System.Int64})">
             <summary>
             构造
             </summary>
@@ -61,7 +61,7 @@
             <param name="id">订单id</param>
             <returns></returns>
         </member>
-        <member name="M:MyShop.Application.OrderApplicationService.GetListAsync">
+        <member name="M:MyShop.Application.OrderApplicationService.GetListAsync(MyShop.Application.Contract.Base.BasePageInput)">
             <summary>
             获取订单列表
             </summary>
@@ -103,6 +103,18 @@
             <param name="page">分页信息</param>
             <returns></returns>
         </member>
+        <member name="T:MyShop.Application.UserApplicationService">
+            <summary>
+            用户服务
+            </summary>
+        </member>
+        <member name="M:MyShop.Application.UserApplicationService.#ctor(Volo.Abp.Domain.Repositories.IRepository{MyShop.Domain.Entities.User,System.Guid},Microsoft.Extensions.Configuration.IConfiguration)">
+            <summary>
+            构造
+            </summary>
+            <param name="userRepository">用户仓储</param>
+            <param name="configuration">配置信息</param>
+        </member>
         <member name="M:MyShop.Application.UserApplicationService.Login(MyShop.Application.Contract.User.Dto.UserLoginDto)">
             <summary>
             登录
@@ -116,6 +128,13 @@
             </summary>
             <param name="registerInfo">注册信息</param>
             <param name="cancellationToken">取消令牌</param>
+            <returns></returns>
+        </member>
+        <member name="M:MyShop.Application.UserApplicationService.GenerateToken(System.Collections.Generic.IEnumerable{System.Security.Claims.Claim})">
+            <summary>
+            生成token
+            </summary>
+            <param name="claims">声明</param>
             <returns></returns>
         </member>
     </members>
