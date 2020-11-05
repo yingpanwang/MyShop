@@ -48,6 +48,7 @@ namespace MyShop.Api
             // 配置swagger
             ConfigureSwagger(service);
 
+            // 移除Abp异常过滤器
             Configure<MvcOptions>(options =>
             {
                 var index = options.Filters.ToList().FindIndex(filter => filter is ServiceFilterAttribute attr && attr.ServiceType.Equals(typeof(AbpExceptionFilter)));
@@ -78,6 +79,8 @@ namespace MyShop.Api
             {
                 app.UseDeveloperExceptionPage();
             }
+
+            app.UseMyShopExceptionMiddleware();
 
             // 跨域
             app.UseCors("AllowAll");
