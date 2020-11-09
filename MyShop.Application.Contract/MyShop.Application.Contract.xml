@@ -54,45 +54,5 @@
             库存
             </summary>
         </member>
-        <member name="T:MyShop.Application.Contract.User.Dto.UserRegisterDto">
-            <summary>
-            用户注册信息
-            </summary>
-        </member>
-        <member name="P:MyShop.Application.Contract.User.Dto.UserRegisterDto.Account">
-            <summary>
-            账号
-            </summary>
-        </member>
-        <member name="P:MyShop.Application.Contract.User.Dto.UserRegisterDto.NickName">
-            <summary>
-            用户名
-            </summary>
-        </member>
-        <member name="P:MyShop.Application.Contract.User.Dto.UserRegisterDto.Age">
-            <summary>
-            年龄
-            </summary>
-        </member>
-        <member name="P:MyShop.Application.Contract.User.Dto.UserRegisterDto.Tel">
-            <summary>
-            电话
-            </summary>
-        </member>
-        <member name="P:MyShop.Application.Contract.User.Dto.UserRegisterDto.Address">
-            <summary>
-            地址
-            </summary>
-        </member>
-        <member name="P:MyShop.Application.Contract.User.Dto.UserRegisterDto.Password">
-            <summary>
-            密码
-            </summary>
-        </member>
-        <member name="P:MyShop.Application.Contract.User.Dto.UserRegisterDto.ConfirmPassword">
-            <summary>
-            确认密码
-            </summary>
-        </member>
     </members>
 </doc>

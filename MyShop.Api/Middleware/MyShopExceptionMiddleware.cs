@@ -21,16 +21,18 @@ namespace MyShop.Api.Middleware
         {
             _next = next;
         }
+
         public async Task InvokeAsync(HttpContext context)
         {
-            try
-            {
-                await _next(context);
-            }
-            catch (Exception ex)
-            {
-                await HandleException(context, ex);
-            }
+            //try
+            //{
+            //    await _next(context);
+            //}
+            //catch (Exception ex)
+            //{
+            //    await HandleException(context, ex);
+            //}
+            await _next(context);
         }
 
         private async Task HandleException(HttpContext context, Exception ex = null) 

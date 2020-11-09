@@ -2,9 +2,9 @@
 using MyShop.Application.Contract.Basket.Dto;
 using MyShop.Application.Contract.Order.Dto;
 using MyShop.Application.Contract.Product.Dto;
-using MyShop.Application.Contract.User.Dto;
 using MyShop.Application.Core.Helpers;
 using MyShop.Domain.Entities;
+using MyShop.Users.Application.Contract.Dto;
 using System;
 using System.Collections.Generic;
 using System.Text;

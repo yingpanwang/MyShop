@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Reflection.Metadata.Ecma335;
 using System.Text;
 
-namespace MyShop.Application.Contract.User.Dto
+namespace MyShop.Users.Application.Contract.Dto
 {
     /// <summary>
     /// 用户注册信息

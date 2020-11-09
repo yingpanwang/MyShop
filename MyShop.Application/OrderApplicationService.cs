@@ -2,6 +2,7 @@
 using MyShop.Application.Contract.Base;
 using MyShop.Application.Contract.Order;
 using MyShop.Application.Contract.Order.Dto;
+using MyShop.Application.Contract.User;
 using MyShop.Application.Core.ResponseModel;
 using MyShop.Domain.Entities;
 using System;
@@ -25,14 +26,16 @@ namespace MyShop.Application
     {
 
         private readonly IRepository<Order,long> _orderRepository;
+        private readonly IUserApplicationService _userService;
 
         /// <summary>
         /// 构造
         /// </summary>
         /// <param name="orderRepository"></param>
-        public OrderApplicationService(IRepository<Order,long> orderRepository) 
+        public OrderApplicationService(IRepository<Order,long> orderRepository, IUserApplicationService userService) 
         {
             _orderRepository = orderRepository;
+            _userService = userService;
         }
 
         /// <summary>
@@ -55,6 +58,11 @@ namespace MyShop.Application
         {
             var user = CurrentUser;
 
+            var loginResult = await _userService.Login(new Users.Application.Contract.Dto.UserLoginDto() 
+            {
+                Account = "wyp",
+                Password = "123"
+            });
             var orders = _orderRepository
                 .Where(p => p.UserId == user.Id);
             var result = ObjectMapper.Map<List<Order>,List<OrderInfoDto>>(orders.PageBy(input).ToList());

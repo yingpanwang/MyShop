@@ -34,9 +34,9 @@ namespace MyShop.Api
 {
 
     // 注意是依赖于AspNetCoreMvc 而不是 AspNetCore
-    [DependsOn(typeof(AbpAspNetCoreMvcModule),typeof(AbpAutofacModule))]
-    [DependsOn(typeof(MyShopApplicationModule),typeof(MyShopEntityFrameworkCoreModule),typeof(MyShopAdminApplicationModule))]
-    public class MyShopApiModule :AbpModule
+    [DependsOn(typeof(AbpAspNetCoreMvcModule), typeof(AbpAutofacModule))]
+    [DependsOn(typeof(MyShopApplicationModule), typeof(MyShopEntityFrameworkCoreModule), typeof(MyShopAdminApplicationModule))]
+    public class MyShopApiModule : AbpModule
     {
         public override void ConfigureServices(ServiceConfigurationContext context)
         {
@@ -63,7 +63,7 @@ namespace MyShop.Api
             {
                 options.ConventionalControllers.Create(typeof(Application.ProductApplicationService).Assembly);
                 options.ConventionalControllers.Create(typeof(Application.OrderApplicationService).Assembly);
-                options.ConventionalControllers.Create(typeof(Application.UserApplicationService).Assembly);
+                // options.ConventionalControllers.Create(typeof(Application.UserApplicationService).Assembly);
                 options.ConventionalControllers.Create(typeof(Application.BasketApplicationService).Assembly);
                 options.ConventionalControllers.Create(typeof(Admin.Application.Services.ProductApplicationService).Assembly, options =>
                 {
@@ -106,16 +106,16 @@ namespace MyShop.Api
 
         #region ServicesConfigure
 
-        private void ConfigureJwt(IServiceCollection services) 
+        private void ConfigureJwt(IServiceCollection services)
         {
             var configuration = services.GetConfiguration();
             services
-                .AddAuthentication(options=> 
+                .AddAuthentication(options =>
                 {
                     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
                 })
-                .AddJwtBearer(options=> 
+                .AddJwtBearer(options =>
                 {
                     options.RequireHttpsMetadata = false;// 开发环境为false
 
@@ -134,14 +134,14 @@ namespace MyShop.Api
                     // 事件
                     options.Events = new JwtBearerEvents()
                     {
-                        OnAuthenticationFailed = context => 
+                        OnAuthenticationFailed = context =>
                         {
                             return Task.CompletedTask;
                         },
-                        OnChallenge = async context => 
+                        OnChallenge = async context =>
                         {
 
-                            BaseResult<object> result = new BaseResult<object>(ResponseResultCode.Unauthorized,"未授权",null);
+                            BaseResult<object> result = new BaseResult<object>(ResponseResultCode.Unauthorized, "未授权", null);
                             context.HandleResponse();
                             context.Response.ContentType = "application/json;utf-8";
 
@@ -150,7 +150,7 @@ namespace MyShop.Api
                             await context.Response.WriteAsync(JsonConvert.SerializeObject(result), Encoding.UTF8);
 
                         },
-                        OnForbidden = context => 
+                        OnForbidden = context =>
                         {
                             return Task.CompletedTask;
                         },
@@ -162,7 +162,7 @@ namespace MyShop.Api
                 });
         }
 
-        private void ConfigureCors(IServiceCollection services) 
+        private void ConfigureCors(IServiceCollection services)
         {
             services.AddCors(options =>
             {

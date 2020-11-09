@@ -18,6 +18,7 @@
   <ItemGroup>
     <ProjectReference Include="..\MyShop.Application.Contract\MyShop.Application.Contract.csproj" />
     <ProjectReference Include="..\MyShop.Entity\MyShop.Domain.csproj" />
+    <ProjectReference Include="..\MyShop.Users.Application.Contract\MyShop.Users.Application.Contract.csproj" />
   </ItemGroup>
 
   <ItemGroup>

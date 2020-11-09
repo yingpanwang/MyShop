@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace MyShop.Application.Contract.User.Dto
+namespace MyShop.Users.Application.Contract.Dto
 {
     public class TokenInfo
     {

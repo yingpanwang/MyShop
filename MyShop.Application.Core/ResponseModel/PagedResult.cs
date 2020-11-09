@@ -38,7 +38,7 @@ namespace MyShop.Application.Core.ResponseModel
         public PageData(int total,IEnumerable<T> list) 
         {
             this.Total = total;
-            this.Data = list;
+            this.List = list;
         }
 
         /// <summary>
@@ -49,6 +49,6 @@ namespace MyShop.Application.Core.ResponseModel
         /// <summary>
         /// 数据集合
         /// </summary>
-        public IEnumerable<T> Data { get; set; }
+        public IEnumerable<T> List { get; set; }
     }
 }
