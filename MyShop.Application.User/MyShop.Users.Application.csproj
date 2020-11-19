@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DocumentationFile>D:\MyProjects\MyShop\MyShop.Application.User\MyShop.Users.Application.xml</DocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\MyShop.Application.Contract\MyShop.Application.Contract.csproj" />
+    <ProjectReference Include="..\MyShop.Application.Core\MyShop.Application.Core.csproj" />
+    <ProjectReference Include="..\MyShop.Entity\MyShop.Domain.csproj" />
+    <ProjectReference Include="..\MyShop.Users.Application.Contract\MyShop.Users.Application.Contract.csproj" />
+  </ItemGroup>
+
+</Project>

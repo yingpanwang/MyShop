@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>MyShop.Users.Application</name>
+    </assembly>
+    <members>
+        <member name="T:MyShop.Users.Application.UserApplicationService">
+            <summary>
+            用户服务
+            </summary>
+        </member>
+        <member name="M:MyShop.Users.Application.UserApplicationService.#ctor(Volo.Abp.Domain.Repositories.IRepository{MyShop.Domain.Entities.User,System.Guid},Microsoft.Extensions.Configuration.IConfiguration)">
+            <summary>
+            构造
+            </summary>
+            <param name="userRepository">用户仓储</param>
+            <param name="configuration">配置信息</param>
+        </member>
+        <member name="M:MyShop.Users.Application.UserApplicationService.Login(MyShop.Users.Application.Contract.Dto.UserLoginDto)">
+            <summary>
+            登录
+            </summary>
+            <param name="loginInfo">登录信息</param>
+            <returns></returns>
+        </member>
+        <member name="M:MyShop.Users.Application.UserApplicationService.Register(MyShop.Users.Application.Contract.Dto.UserRegisterDto,System.Threading.CancellationToken)">
+            <summary>
+            注册
+            </summary>
+            <param name="registerInfo">注册信息</param>
+            <param name="cancellationToken">取消令牌</param>
+            <returns></returns>
+        </member>
+        <member name="M:MyShop.Users.Application.UserApplicationService.GenerateToken(System.Collections.Generic.IEnumerable{System.Security.Claims.Claim})">
+            <summary>
+            生成token
+            </summary>
+            <param name="claims">声明</param>
+            <returns></returns>
+        </member>
+        <member name="T:MyShop.Application.User.MyShopUserApplicationModule">
+            <summary>
+            项目依赖
+            </summary>
+        </member>
+    </members>
+</doc>
