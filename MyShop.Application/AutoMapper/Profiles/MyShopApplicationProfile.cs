@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using MyShop.Application.Contract.Basket.Dto;
 using MyShop.Application.Contract.Order.Dto;
 using MyShop.Application.Contract.Product.Dto;
 using MyShop.Application.Core.Helpers;
@@ -21,11 +20,7 @@ namespace MyShop.Application.AutoMapper.Profiles
                
             CreateMap<Order, OrderInfoDto>().ReverseMap();
 
-            CreateMap<Basket, BasketDto>().ReverseMap();
-            CreateMap<BasketItem, BasketItemDto>().ReverseMap();
-
-            CreateMap<InsertBasketItemDto, BasketItem>().ReverseMap();
-
+            
             // 用户注册信息映射
             CreateMap<UserRegisterDto, User>()
                 .ForMember(src=>src.UserStatus ,opt=>opt.MapFrom(src=> UserStatusEnum.Registered))

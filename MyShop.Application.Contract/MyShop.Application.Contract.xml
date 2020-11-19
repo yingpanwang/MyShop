@@ -9,6 +9,37 @@
             关键字
             </summary>
         </member>
+        <member name="T:MyShop.Application.Contract.Basket.IBasketApplicationService">
+            <summary>
+            购物篮服务
+            </summary>
+        </member>
+        <member name="M:MyShop.Application.Contract.Basket.IBasketApplicationService.GetAsync">
+            <summary>
+            获取购物篮
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:MyShop.Application.Contract.Basket.IBasketApplicationService.AddAsync(MyShop.Application.Contract.Basket.Dto.AddBasketItemDto)">
+            <summary>
+            添加商品
+            </summary>
+            <param name="pid">商品id</param>
+            <returns></returns>
+        </member>
+        <member name="M:MyShop.Application.Contract.Basket.IBasketApplicationService.RemoveAsync(MyShop.Application.Contract.Basket.Dto.RemoveBasketItemDto)">
+            <summary>
+            移除商品
+            </summary>
+            <param name="pid">商品id</param>
+            <returns></returns>
+        </member>
+        <member name="M:MyShop.Application.Contract.Basket.IBasketApplicationService.ClearAsync">
+            <summary>
+            清空购物车
+            </summary>
+            <returns></returns>
+        </member>
         <member name="P:MyShop.Application.Contract.Order.Dto.CreateOrderDto.Total">
             <summary>
             总金额
@@ -34,9 +65,29 @@
             总金额
             </summary>
         </member>
+        <member name="T:MyShop.Application.Contract.Product.Dto.ProductItemDto">
+            <summary>
+            产品项
+            </summary>
+        </member>
+        <member name="P:MyShop.Application.Contract.Product.Dto.ProductItemDto.Id">
+            <summary>
+            id
+            </summary>
+        </member>
         <member name="P:MyShop.Application.Contract.Product.Dto.ProductItemDto.Name">
             <summary>
             名称
+            </summary>
+        </member>
+        <member name="P:MyShop.Application.Contract.Product.Dto.ProductItemDto.CategoryName">
+            <summary>
+            分类名称
+            </summary>
+        </member>
+        <member name="P:MyShop.Application.Contract.Product.Dto.ProductItemDto.CoverImage">
+            <summary>
+            封面图片
             </summary>
         </member>
         <member name="P:MyShop.Application.Contract.Product.Dto.ProductItemDto.Price">

@@ -4,17 +4,5 @@
         <name>MyShop.Api</name>
     </assembly>
     <members>
-        <member name="M:MyShop.Api.Middleware.MiddlewareExtensions.UseMyShopExceptionMiddleware(Microsoft.AspNetCore.Builder.IApplicationBuilder)">
-            <summary>
-            MyShop异常中间件
-            </summary>
-            <param name="app"></param>
-            <returns></returns>
-        </member>
-        <member name="T:MyShop.Api.Middleware.MyShopExceptionMiddleware">
-            <summary>
-            MyShop异常中间件
-            </summary>
-        </member>
     </members>
 </doc>

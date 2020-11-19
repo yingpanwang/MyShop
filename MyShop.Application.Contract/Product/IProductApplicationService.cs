@@ -1,5 +1,6 @@
 ﻿using MyShop.Application.Contract.Base;
 using MyShop.Application.Contract.Product.Dto;
+using MyShop.Application.Core.ResponseModel;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -11,7 +12,7 @@ namespace MyShop.Application.Contract.Product
 {
     public interface IProductApplicationService :IApplicationService
     {
-        IPagedResult<ProductItemDto> GetPage(BasePageInput page);
+        PagedResult<ProductItemDto> GetPage(BasePageInput page);
         Task<ProductItemDto> GetAsync(long id);
     }
 }

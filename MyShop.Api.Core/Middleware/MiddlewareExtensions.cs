@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace MyShop.Api.Middleware
+namespace MyShop.Api.Core.Middleware
 {
     public static class MiddlewareExtensions
     {

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using MyShop.Application.Contract.Base;
 using MyShop.Application.Contract.Product;
 using MyShop.Application.Contract.Product.Dto;
+using MyShop.Application.Core.ResponseModel;
 using MyShop.Domain.Entities;
 using MyShop.Domain.IRepositories;
 using System;
@@ -60,7 +61,7 @@ namespace MyShop.Application
         /// </summary>
         /// <param name="page">分页信息</param>
         /// <returns></returns>
-        public IPagedResult<ProductItemDto> GetPage(BasePageInput page)
+        public PagedResult<ProductItemDto> GetPage(BasePageInput page)
         {
             var query = Query()
                 .WhereIf(!string.IsNullOrEmpty(page.Keyword), w => w.Name.StartsWith(page.Keyword));
@@ -69,7 +70,7 @@ namespace MyShop.Application
 
             var products = query.PageBy(page).ToList();
 
-            return new PagedResultDto<ProductItemDto>(count,products);
+            return PagedResult<ProductItemDto>.Success(count,products);
         }
 
         private IQueryable<ProductItemDto> Query(Expression<Func<Product,bool>> expression = null) 
@@ -89,6 +90,7 @@ namespace MyShop.Application
                            Price = product.Price,
                            Stock = product.Stock,
                            CategoryName = result.CategoryName,
+                           CoverImage = product.CoverImage
                        };
 
             return data;

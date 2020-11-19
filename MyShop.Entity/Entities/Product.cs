@@ -17,6 +17,11 @@ namespace MyShop.Domain.Entities
         public string Name { get; set; }
 
         /// <summary>
+        /// 封面图片
+        /// </summary>
+        public string CoverImage { get; set; }
+
+        /// <summary>
         /// 分类id
         /// </summary>
         public long CategoryId { get; set; }
@@ -35,6 +40,21 @@ namespace MyShop.Domain.Entities
         /// 库存
         /// </summary>
         public decimal Stock { get; set; }
+
+        public ProductStatus Status { get; set; }
+    }
+
+    public enum ProductStatus 
+    {
+        /// <summary>
+        /// 正常
+        /// </summary>
+        Normal,
+
+        /// <summary>
+        /// 下线
+        /// </summary>
+        Offline
     }
 
 }

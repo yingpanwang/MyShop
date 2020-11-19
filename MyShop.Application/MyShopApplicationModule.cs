@@ -4,12 +4,13 @@ using MyShop.Application.Contract;
 using MyShop.Application.Contract.User;
 using MyShop.Domain;
 using MyShop.Users.Application.Contract;
+using StackExchange.Redis;
 using System;
 using System.Collections.Generic;
 using System.Text;
 using Volo.Abp;
 using Volo.Abp.AutoMapper;
-using Volo.Abp.Http.Client;
+using Volo.Abp.Caching;
 using Volo.Abp.Modularity;
 
 namespace MyShop.Application
@@ -21,7 +22,7 @@ namespace MyShop.Application
         typeof(MyShopDomainModule))]
 
     /// 组件依赖
-    [DependsOn(typeof(AbpAutoMapperModule),typeof(AbpHttpClientModule))]
+    [DependsOn(typeof(AbpAutoMapperModule),typeof(AbpCachingModule))]
     public class MyShopApplicationModule:AbpModule
     {
         public override void ConfigureServices(ServiceConfigurationContext context)
@@ -30,8 +31,8 @@ namespace MyShop.Application
             //添加ObjectMapper注入
             context.Services.AddAutoMapperObjectMapper<MyShopApplicationModule>();
 
-            //创建动态客户端代理
-            context.Services.AddHttpClientProxy<IUserApplicationService>();
+            context.Services.AddSingleton(ConnectionMultiplexer.Connect("127.0.0.1:6379"));;
+
 
             // Abp AutoMapper设置
             Configure<AbpAutoMapperOptions>(config => 

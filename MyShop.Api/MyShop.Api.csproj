@@ -22,6 +22,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\MyShop.Admin.Application\MyShop.Admin.Application.csproj" />
+    <ProjectReference Include="..\MyShop.Api.Core\MyShop.Api.Core.csproj" />
     <ProjectReference Include="..\MyShop.Application\MyShop.Application.csproj" />
     <ProjectReference Include="..\MyShop.EntityFrameworkCore.DbMigration\MyShop.EntityFrameworkCore.DbMigration.csproj" />
     <ProjectReference Include="..\MyShop.EntityFrameworkCore\MyShop.EntityFrameworkCore.csproj" />

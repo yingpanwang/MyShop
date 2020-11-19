@@ -1,7 +1,11 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using MyShop.Application.Contract.Basket;
 using MyShop.Application.Contract.Basket.Dto;
+using MyShop.Application.Core.Configs;
+using MyShop.Application.Core.ResponseModel;
 using MyShop.Domain.Entities;
+using Newtonsoft.Json;
+using StackExchange.Redis;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,6 +14,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 using Volo.Abp.Application.Services;
+using Volo.Abp.Caching;
 using Volo.Abp.Domain.Repositories;
 
 namespace MyShop.Application
@@ -20,77 +25,125 @@ namespace MyShop.Application
     /// </summary>
     public class BasketApplicationService : ApplicationService, IBasketApplicationService
     {
-        private readonly IRepository<Basket,long> _basketRepository;
-        private readonly IRepository<BasketItem,long> _itemsRepository;
+        private readonly ConnectionMultiplexer _redis;
 
+        private readonly IRepository<Product, long> _products;
         /// <summary>
         /// 构造
         /// </summary>
-        /// <param name="basketRepository"></param>
-        /// <param name="itemsRepository"></param>
-        public BasketApplicationService(IRepository<Basket,long> basketRepository,IRepository<BasketItem,long> itemsRepository) 
+        public BasketApplicationService(ConnectionMultiplexer redis,IRepository<Product,long> products) 
         {
-            _basketRepository = basketRepository;
-            _itemsRepository = itemsRepository;
+            _redis = redis;
+            _products = products;
+        }
+
+        /// <summary>
+        /// 获取购物篮
+        /// </summary>
+        /// <returns></returns>
+        public async Task<ListResult<BasketItemDto>> GetAsync() 
+        {
+            var store = _redis.GetDatabase(MyShopRedisConfig.BASKETDBNUMBER);
+            var userId = CurrentUser.Id;
+            var key = $"{MyShopRedisConfig.BASKETKEY_PRE}:{userId}";
+
+            var basket = await store.HashGetAllAsync(key);
+            List<long> pids = basket.Select(x=>(long)x.Name).ToList();
+            var products = _products.Where(x=>pids.Contains(x.Id));
+
+            var list = products.ToList().Select(item => new BasketItemDto()
+            {
+                Count = (double)basket.FirstOrDefault(x => x.Name == item.Id).Value,
+                CoverImage = item.CoverImage,
+                Price = item.Price.Value,
+                ProductId = item.Id,
+                ProductName = item.Name,
+                Status = (int)item.Status,
+                StatusText = Enum.GetName(typeof(ProductStatus),item.Status)
+            });
+
+            return ListResult<BasketItemDto>.Success(list);
         }
 
         /// <summary>
         /// 添加物品
         /// </summary>
-        /// <param name="id">购物车id</param>
-        /// <param name="input">物品信息</param>
+        /// <param name="input">请求信息</param>
+        /// <param name="pid">商品id</param>
         /// <returns></returns>
-        public async Task<bool> AddItemAsync(long id,InsertBasketItemDto input)
+        public async Task<BaseResult<object>> AddAsync(AddBasketItemDto input)
         {
+            long pid = input.PId;
+            var store = _redis.GetDatabase(MyShopRedisConfig.BASKETDBNUMBER);
+            var userId = CurrentUser.Id;
+            var key = $"{MyShopRedisConfig.BASKETKEY_PRE}:{userId}";
 
-            if (_basketRepository.Any(x => x.Id == id)) 
+            var basket = store.HashGetAll(key);
+            if (basket.Any(x => x.Name == pid))
             {
-                var entity = ObjectMapper.Map<InsertBasketItemDto, BasketItem>(input);
-
-                await _itemsRepository.InsertAsync(entity);
-
-                return true;
-            }
-            return false;
-        }
-
-        /// <summary>
-        /// 创建购物车
-        /// </summary>
-        /// <param name="input">物品信息</param>
-        /// <returns></returns>
-        public async Task<bool> CreateAsync(InsertBasketItemDto input)
-        {
-            if (_basketRepository.Any(x => x.Id == input.BasketId))
-            {
-                return false;
+                await store.HashIncrementAsync(key, pid);
             }
             else 
             {
-                var basket = new Basket()
+                var product = await _products.FindAsync(p=>p.Id == pid);
+                if (product != null)
                 {
-                    CreationTime = DateTime.Now
-                };
-
-                var item = ObjectMapper.Map<InsertBasketItemDto, BasketItem>(input);
-                
-                var insertedBasket = await _basketRepository.InsertAsync(basket,true);
-                item.BasketId = insertedBasket.Id;
-
-                await _itemsRepository.InsertAsync(item);
-                return true;
+                    if (product.Status != ProductStatus.Normal) 
+                    {
+                        return BaseResult<object>.Failed("商品已下架!");
+                    }
+                    await store.HashSetAsync(key, new HashEntry[] { new HashEntry(pid, 1) });
+                }
+                else 
+                {
+                    return BaseResult<object>.Failed("加入购物车失败：商品不见了!");
+                }
             }
-            
+
+            return BaseResult<object>.Success(new { Pid = pid });
         }
 
         /// <summary>
-        /// 删除购物车信息
+        /// 移除物品
         /// </summary>
-        /// <param name="id">物品信息id</param>
+        /// <param name="input">请求信息</param>
+        /// <param name="pid">商品id</param>
         /// <returns></returns>
-        public Task<bool> DeleteItemAsync(long id)
+        public async Task<BaseResult<object>> RemoveAsync(RemoveBasketItemDto input)
         {
-            throw new NotImplementedException();
+            long pid = input.PId;
+            var store = _redis.GetDatabase(MyShopRedisConfig.BASKETDBNUMBER);
+            var userId = CurrentUser.Id;
+            var key = $"{MyShopRedisConfig.BASKETKEY_PRE}:{userId}";
+
+            var basket = store.HashGetAll(key);
+            if (basket.Any(x => x.Name == pid))
+            {
+                await store.HashDecrementAsync(key, pid);
+                double count = (double)await store.HashGetAsync(key, pid);
+                if(count <= 0) 
+                {
+                    await store.HashDeleteAsync(key, pid);
+                }
+            }
+
+            return BaseResult<object>.Success(null);
+        }
+
+
+        /// <summary>
+        /// 清空购物车
+        /// </summary>
+        /// <returns></returns>
+        public async Task<BaseResult<object>> ClearAsync()
+        {
+            var store = _redis.GetDatabase(MyShopRedisConfig.BASKETDBNUMBER);
+            var userId = CurrentUser.Id;
+            var key = $"{MyShopRedisConfig.BASKETKEY_PRE}:{userId}";
+
+            await store.KeyDeleteAsync(key);
+
+            return BaseResult<object>.Success(null);
         }
     }
 }

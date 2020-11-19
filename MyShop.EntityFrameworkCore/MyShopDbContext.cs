@@ -23,7 +23,6 @@ namespace MyShop.EntityFrameworkCore
             builder.ConfigureOrderStore();
             builder.ConfigureOrderItemStore();
             builder.ConfigureCategoryStore();
-            builder.ConfigureBasketAndItemsStore();
             builder.ConfigureUserStore();
         }
 
@@ -31,8 +30,6 @@ namespace MyShop.EntityFrameworkCore
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderItem> OrderItems { get; set; }
         public DbSet<Category> Categories { get; set; }
-        public DbSet<Basket> Basket { get; set; }
-        public DbSet<BasketItem> BasketItems { get; set; }
         public DbSet<User> Users { get; set; }
     }
 }

@@ -26,5 +26,6 @@ namespace MyShop.Application.Contract.User
         /// <param name="loginInfo">登录信息</param>
         /// <returns></returns>
         Task<BaseResult<TokenInfo>> Login(UserLoginDto loginInfo);
+
     }
 }

@@ -6,18 +6,20 @@ namespace MyShop.Application.Contract.Basket.Dto
 {
     public class BasketItemDto
     {
-        public int Id { get; set; }
-
-        public Guid BasketId { get; set; }
-
         public long ProductId { get; set; }
 
         public string ProductName { get; set; }
 
         public decimal Price { get; set; }
 
-        public decimal Count { get; set; }
+        public double Count { get; set; }
 
-        public DateTime CreationTime { get; set; } = DateTime.Now;
+        public decimal Total { get => this.Price * (decimal)this.Count; }
+
+        public int  Status { get; set; }
+
+        public string StatusText { get; set; }
+
+        public string CoverImage { get; set; }
     }
 }
