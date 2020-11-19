@@ -11,6 +11,7 @@ using System.Text;
 using Volo.Abp;
 using Volo.Abp.AutoMapper;
 using Volo.Abp.Caching;
+using Volo.Abp.Http.Client;
 using Volo.Abp.Modularity;
 
 namespace MyShop.Application
@@ -22,7 +23,7 @@ namespace MyShop.Application
         typeof(MyShopDomainModule))]
 
     /// 组件依赖
-    [DependsOn(typeof(AbpAutoMapperModule),typeof(AbpCachingModule))]
+    [DependsOn(typeof(AbpAutoMapperModule),typeof(AbpCachingModule),typeof(AbpHttpClientModule))]
     public class MyShopApplicationModule:AbpModule
     {
         public override void ConfigureServices(ServiceConfigurationContext context)
@@ -33,7 +34,8 @@ namespace MyShop.Application
 
             context.Services.AddSingleton(ConnectionMultiplexer.Connect("127.0.0.1:6379"));;
 
-
+            context.Services.AddHttpClientProxy<IUserApplicationService>();
+            
             // Abp AutoMapper设置
             Configure<AbpAutoMapperOptions>(config => 
             {

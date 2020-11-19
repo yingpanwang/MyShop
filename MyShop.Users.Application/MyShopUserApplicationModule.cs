@@ -9,7 +9,7 @@ using Volo.Abp;
 using Volo.Abp.AutoMapper;
 using Volo.Abp.Modularity;
 
-namespace MyShop.Application.User
+namespace MyShop.Users.Application
 {
     /// <summary>
     /// 项目依赖

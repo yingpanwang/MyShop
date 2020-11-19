@@ -4,6 +4,11 @@
         <name>MyShop.Users.Application</name>
     </assembly>
     <members>
+        <member name="T:MyShop.Users.Application.MyShopUserApplicationModule">
+            <summary>
+            项目依赖
+            </summary>
+        </member>
         <member name="T:MyShop.Users.Application.UserApplicationService">
             <summary>
             用户服务
@@ -37,11 +42,6 @@
             </summary>
             <param name="claims">声明</param>
             <returns></returns>
-        </member>
-        <member name="T:MyShop.Application.User.MyShopUserApplicationModule">
-            <summary>
-            项目依赖
-            </summary>
         </member>
     </members>
 </doc>

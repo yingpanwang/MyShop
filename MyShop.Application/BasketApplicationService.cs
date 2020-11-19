@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using MyShop.Application.Contract.Basket;
 using MyShop.Application.Contract.Basket.Dto;
+using MyShop.Application.Contract.User;
 using MyShop.Application.Core.Configs;
 using MyShop.Application.Core.ResponseModel;
 using MyShop.Domain.Entities;
@@ -31,7 +32,8 @@ namespace MyShop.Application
         /// <summary>
         /// 构造
         /// </summary>
-        public BasketApplicationService(ConnectionMultiplexer redis,IRepository<Product,long> products) 
+        public BasketApplicationService(ConnectionMultiplexer redis,
+            IRepository<Product,long> products) 
         {
             _redis = redis;
             _products = products;
@@ -137,6 +139,7 @@ namespace MyShop.Application
         /// <returns></returns>
         public async Task<BaseResult<object>> ClearAsync()
         {
+
             var store = _redis.GetDatabase(MyShopRedisConfig.BASKETDBNUMBER);
             var userId = CurrentUser.Id;
             var key = $"{MyShopRedisConfig.BASKETKEY_PRE}:{userId}";

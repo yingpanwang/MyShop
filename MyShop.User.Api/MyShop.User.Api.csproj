@@ -1,0 +1,12 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MyShop.Api.Core\MyShop.Api.Core.csproj" />
+    <ProjectReference Include="..\MyShop.EntityFrameworkCore\MyShop.EntityFrameworkCore.csproj" />
+    <ProjectReference Include="..\MyShop.Users.Application\MyShop.Users.Application.csproj" />
+  </ItemGroup>
+
+</Project>
