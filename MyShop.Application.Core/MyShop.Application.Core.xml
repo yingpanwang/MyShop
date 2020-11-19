@@ -1,0 +1,116 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>MyShop.Application.Core</name>
+    </assembly>
+    <members>
+        <member name="T:MyShop.Application.Core.ResponseModel.BaseResult`1">
+            <summary>
+            基础响应信息
+            </summary>
+            <typeparam name="T">响应数据类型</typeparam>
+        </member>
+        <member name="P:MyShop.Application.Core.ResponseModel.BaseResult`1.Code">
+            <summary>
+            响应码
+            </summary>
+        </member>
+        <member name="P:MyShop.Application.Core.ResponseModel.BaseResult`1.Message">
+            <summary>
+            响应消息
+            </summary>
+        </member>
+        <member name="P:MyShop.Application.Core.ResponseModel.BaseResult`1.Data">
+            <summary>
+            响应数据
+            </summary>
+        </member>
+        <member name="M:MyShop.Application.Core.ResponseModel.BaseResult`1.Success(`0,System.String)">
+            <summary>
+            响应成功信息
+            </summary>
+            <param name="data">响应数据</param>
+            <returns></returns>
+        </member>
+        <member name="M:MyShop.Application.Core.ResponseModel.BaseResult`1.Failed(System.String)">
+            <summary>
+            响应失败信息
+            </summary>
+            <param name="message">响应信息</param>
+            <returns></returns>
+        </member>
+        <member name="M:MyShop.Application.Core.ResponseModel.BaseResult`1.Error(System.String)">
+            <summary>
+            响应异常信息
+            </summary>
+            <param name="message">响应信息</param>
+            <returns></returns>
+        </member>
+        <member name="M:MyShop.Application.Core.ResponseModel.BaseResult`1.#ctor(MyShop.Application.Core.ResponseModel.ResponseResultCode,System.String,`0)">
+            <summary>
+            构造响应信息
+            </summary>
+            <param name="code">响应码</param>
+            <param name="message">响应消息</param>
+            <param name="data">响应数据</param>
+        </member>
+        <member name="T:MyShop.Application.Core.ResponseModel.ListResult`1">
+            <summary>
+            列表响应
+            </summary>
+            <typeparam name="T"></typeparam>
+        </member>
+        <member name="M:MyShop.Application.Core.ResponseModel.ListResult`1.Success(System.Collections.Generic.IEnumerable{`0},System.String)">
+            <summary>
+            响应成功信息
+            </summary>
+            <param name="data">响应数据</param>
+            <returns></returns>
+        </member>
+        <member name="M:MyShop.Application.Core.ResponseModel.ListResult`1.Failed(System.String)">
+            <summary>
+            响应失败信息
+            </summary>
+            <param name="message">响应信息</param>
+            <returns></returns>
+        </member>
+        <member name="M:MyShop.Application.Core.ResponseModel.ListResult`1.Error(System.String)">
+            <summary>
+            响应异常信息
+            </summary>
+            <param name="message">响应信息</param>
+            <returns></returns>
+        </member>
+        <member name="M:MyShop.Application.Core.ResponseModel.PagedResult`1.Success(System.Int32,System.Collections.Generic.IEnumerable{`0},System.String)">
+            <summary>
+            响应成功信息
+            </summary>
+            <param name="total">数据总条数</param>
+            <param name="list">分页列表信息</param>
+            <returns></returns>
+        </member>
+        <member name="T:MyShop.Application.Core.ResponseModel.PageData`1">
+            <summary>
+            分页数据
+            </summary>
+            <typeparam name="T">数据类型</typeparam>
+        </member>
+        <member name="M:MyShop.Application.Core.ResponseModel.PageData`1.#ctor(System.Int32,System.Collections.Generic.IEnumerable{`0})">
+            <summary>
+            构造
+            </summary>
+            <param name="total">数据总条数</param>
+            <param name="list">数据集合</param>
+        </member>
+        <member name="P:MyShop.Application.Core.ResponseModel.PageData`1.Total">
+            <summary>
+            数据总条数
+            </summary>
+        </member>
+        <member name="P:MyShop.Application.Core.ResponseModel.PageData`1.List">
+            <summary>
+            数据集合
+            </summary>
+        </member>
+    </members>
+</doc>
