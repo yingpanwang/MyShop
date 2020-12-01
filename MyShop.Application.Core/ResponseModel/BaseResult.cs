@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Net.Http.Headers;
 using System.Text;
@@ -14,24 +15,28 @@ namespace MyShop.Application.Core.ResponseModel
         /// <summary>
         /// 响应码
         /// </summary>
+        [JsonProperty("code")]
         public ResponseResultCode Code { get; set; }
 
         /// <summary>
         /// 响应消息
         /// </summary>
+        [JsonProperty("message")]
         public string Message { get; set; }
 
         /// <summary>
         /// 响应数据
         /// </summary>
+        [JsonProperty("data")]
         public virtual T Data { get; set; }
 
         /// <summary>
         /// 响应成功信息
         /// </summary>
         /// <param name="data">响应数据</param>
+        /// <param name="message">响应消息</param>
         /// <returns></returns>
-        public static BaseResult<T> Success(T data,string message = "请求成功") => new BaseResult<T>(ResponseResultCode.Success,message, data);
+        public static BaseResult<T> Success(T data = null,string message = "请求成功") => new BaseResult<T>(ResponseResultCode.Success,message, data);
 
         /// <summary>
         /// 响应失败信息

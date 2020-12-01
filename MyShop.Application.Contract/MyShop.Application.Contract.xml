@@ -9,6 +9,46 @@
             关键字
             </summary>
         </member>
+        <member name="T:MyShop.Application.Contract.Basket.Dto.AddBasketItemDto">
+            <summary>
+            添加购物篮项
+            </summary>
+        </member>
+        <member name="P:MyShop.Application.Contract.Basket.Dto.AddBasketItemDto.PId">
+            <summary>
+            商品id
+            </summary>
+        </member>
+        <member name="T:MyShop.Application.Contract.Basket.Dto.RemoveBasketItemDto">
+            <summary>
+            移除购物篮项
+            </summary>
+        </member>
+        <member name="P:MyShop.Application.Contract.Basket.Dto.RemoveBasketItemDto.PId">
+            <summary>
+            商品id
+            </summary>
+        </member>
+        <member name="P:MyShop.Application.Contract.Basket.Dto.RemoveBasketItemDto.Clear">
+            <summary>
+            是否移除
+            </summary>
+        </member>
+        <member name="T:MyShop.Application.Contract.Basket.Dto.ChangeBasketItemDto">
+            <summary>
+            更改购物篮项数量
+            </summary>
+        </member>
+        <member name="P:MyShop.Application.Contract.Basket.Dto.ChangeBasketItemDto.PId">
+            <summary>
+            商品id
+            </summary>
+        </member>
+        <member name="P:MyShop.Application.Contract.Basket.Dto.ChangeBasketItemDto.Count">
+            <summary>
+            变更购物篮中商品数量
+            </summary>
+        </member>
         <member name="T:MyShop.Application.Contract.Basket.IBasketApplicationService">
             <summary>
             购物篮服务
@@ -24,14 +64,21 @@
             <summary>
             添加商品
             </summary>
-            <param name="pid">商品id</param>
+            <param name="input">商品id</param>
+            <returns></returns>
+        </member>
+        <member name="M:MyShop.Application.Contract.Basket.IBasketApplicationService.ChangeAsync(MyShop.Application.Contract.Basket.Dto.ChangeBasketItemDto)">
+            <summary>
+            修改商品数量
+            </summary>
+            <param name="input">修改请求</param>
             <returns></returns>
         </member>
         <member name="M:MyShop.Application.Contract.Basket.IBasketApplicationService.RemoveAsync(MyShop.Application.Contract.Basket.Dto.RemoveBasketItemDto)">
             <summary>
             移除商品
             </summary>
-            <param name="pid">商品id</param>
+            <param name="input">商品id</param>
             <returns></returns>
         </member>
         <member name="M:MyShop.Application.Contract.Basket.IBasketApplicationService.ClearAsync">
@@ -63,6 +110,51 @@
         <member name="P:MyShop.Application.Contract.Order.Dto.OrderInfoDto.Total">
             <summary>
             总金额
+            </summary>
+        </member>
+        <member name="P:MyShop.Application.Contract.Product.Dto.ProductDetailsDto.Id">
+            <summary>
+            id
+            </summary>
+        </member>
+        <member name="P:MyShop.Application.Contract.Product.Dto.ProductDetailsDto.Name">
+            <summary>
+            名称
+            </summary>
+        </member>
+        <member name="P:MyShop.Application.Contract.Product.Dto.ProductDetailsDto.CategoryName">
+            <summary>
+            分类名称
+            </summary>
+        </member>
+        <member name="P:MyShop.Application.Contract.Product.Dto.ProductDetailsDto.CoverImage">
+            <summary>
+            封面图片
+            </summary>
+        </member>
+        <member name="P:MyShop.Application.Contract.Product.Dto.ProductDetailsDto.Price">
+            <summary>
+            价格
+            </summary>
+        </member>
+        <member name="P:MyShop.Application.Contract.Product.Dto.ProductDetailsDto.Description">
+            <summary>
+            描述
+            </summary>
+        </member>
+        <member name="P:MyShop.Application.Contract.Product.Dto.ProductDetailsDto.Stock">
+            <summary>
+            库存
+            </summary>
+        </member>
+        <member name="P:MyShop.Application.Contract.Product.Dto.ProductDetailsDto.Images">
+            <summary>
+            图片
+            </summary>
+        </member>
+        <member name="P:MyShop.Application.Contract.Product.Dto.ProductDetailsDto.Summary">
+            <summary>
+            说明
             </summary>
         </member>
         <member name="T:MyShop.Application.Contract.Product.Dto.ProductItemDto">

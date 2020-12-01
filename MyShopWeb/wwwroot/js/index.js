@@ -90,7 +90,8 @@ function handleGoodList(list, total) {
             .replace("$Cover", data.coverImage)
             .replace("$Title", data.name)
             .replace("$Description", data.description)
-            .replace("$PId",data.id);
+            .replace("$PId", data.id)
+            .replace("$DPId", data.id);
             
         dom.append(html);
     }

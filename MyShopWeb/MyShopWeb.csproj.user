@@ -7,5 +7,8 @@
     <ActiveDebugProfile>MyShopWeb</ActiveDebugProfile>
     <View_SelectedScaffolderID>RazorViewEmptyScaffolder</View_SelectedScaffolderID>
     <View_SelectedScaffolderCategoryPath>root/View</View_SelectedScaffolderCategoryPath>
+    <Controller_SelectedScaffolderID>MvcControllerEmptyScaffolder</Controller_SelectedScaffolderID>
+    <Controller_SelectedScaffolderCategoryPath>root/Controller</Controller_SelectedScaffolderCategoryPath>
+    <NameOfLastUsedPublishProfile>FolderProfile</NameOfLastUsedPublishProfile>
   </PropertyGroup>
 </Project>

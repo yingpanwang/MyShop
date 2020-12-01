@@ -18,6 +18,13 @@ namespace MyShop.EntityFrameworkCore.DbContextCreatingExtension
                 option.ToTable("Product");
                 option.ConfigureByConvention();
             });
+
+            builder.Entity<ProductAttachment>(option =>
+            {
+                option.ToTable("ProductAttachment");
+                option.ConfigureByConvention();
+                option.HasIndex(a => a.ProductId);
+            });
         }
     }
 }

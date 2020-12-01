@@ -1,0 +1,85 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+
+<style>
+    .table-head-img {
+        width:10%;
+    }
+
+    .table-head-cbx {
+        width: 10%;
+    }
+
+    .table-head-desc {
+        width: 30%;
+    }
+
+    .table-head-price {
+        width: 10%;
+    }
+
+    .table-head-count {
+        width: 20%;
+    }
+
+    .table-head-total {
+        width: 10%;
+    }
+
+    .table-head-options {
+        width: 20%;
+    }
+
+
+    /*表格行*/
+
+    .table-row-img {
+        width: 10%;
+    }
+
+    .table-row-cbx {
+        width: 10%;
+    }
+
+    .table-row-desc {
+        width: 30%;
+    }
+
+    .table-row-price {
+        width: 10%;
+    }
+    .table-row-count {
+        width: 20%;
+    }
+    .table-row-total {
+        width: 10%;
+    }
+
+    .table-row-options {
+        width: 20%;
+    }
+</style>
+<script src="~/js/basket.js"></script>
+<div class="row col-12 table-responsive table-hover" style="width:100%;height:100%;">
+    <table id="table-basket" class="table col-md-12"  style="width:100%;height:100%;">
+        <thead class="col-md-12">
+            <tr style="width:100%;">
+                <th scope="col" class="table-head-cbx text-center"><input type="checkbox" class="custom-checkbox" onchange="checkAllItems();" /> 全选</th>
+                <th scope="col" class="table-head-img text-left">商品</th>
+                <th scope="col" class="table-head-desc text-center"></th>
+                <th scope="col" class="table-head-price text-center">单价</th>
+                <th scope="col" class="table-head-count text-center">数量</th>
+                <th scope="col" class="table-head-total text-center">小计</th>
+                <th scope="col" class="table-head-options text-center">操作</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+        <tfoot style="margin-bottom:10px;min-height:50px;">
+            <tr>
+                <td>111</td>
+            </tr>
+        </tfoot>
+    </table>
+</div>

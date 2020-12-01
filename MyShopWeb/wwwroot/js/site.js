@@ -36,6 +36,10 @@ function loadBasket()
         }
     });
 }
+function goToBasket()
+{
+    window.location.href = "/basket";
+}
 
 function initEvent()
 {
@@ -96,6 +100,7 @@ function handleLogin(resp) {
         window.localStorage.setItem("userName", resp.data.userName);
         loadNav();
         $("#loginModal").modal("hide");
+        window.location.reload(true);
     }
 }
 
@@ -118,29 +123,35 @@ function jumpToLoginForm()
 
 function clearLocalTokenAndUserInfo()
 {
-    localStorage.setItem("token", "");
-    localStorage.setItem("user-info","");
+    localStorage.removeItem("token");
+    localStorage.removeItem("userName");
+    jumpToLoginForm();
 }
 
 //全局的ajax访问，处理ajax清求时异常
 $.ajaxSetup({
     complete: function (XMLHttpRequest, textStatus) {
-        
+
         var data = XMLHttpRequest.responseJSON;
-        switch (data.code) {
-            case 401:
-                clearLocalTokenAndUserInfo();
-                showUnLoginAlert();
-                break;
-            case 500:
-                alert("服务器开小差了!");
-                break;
-            case 200:
-                break;
-            default:
-                
-                break;
+        if (data != undefined)
+        {
+            switch (data.code) {
+                case 401:
+                    clearLocalTokenAndUserInfo();
+                    showUnLoginAlert();
+
+                    break;
+                case 500:
+                    alert("服务器开小差了!");
+                    break;
+                case 200:
+                    break;
+                default:
+
+                    break;
+            }
         }
     },
     headers: { 'Authorization': 'Bearer ' + window.localStorage.getItem("token") },
+    contentType: "application/json"
 });

@@ -17,7 +17,7 @@ namespace MyShop.Application.AutoMapper.Profiles
         public MyShopApplicationProfile() 
         {
             CreateMap<Product, ProductItemDto>().ReverseMap();
-               
+            CreateMap<ProductItemDto, ProductDetailsDto>();
             CreateMap<Order, OrderInfoDto>().ReverseMap();
 
             

@@ -5,7 +5,6 @@ using MyShop.Application.Contract.Product;
 using MyShop.Application.Contract.Product.Dto;
 using MyShop.Application.Core.ResponseModel;
 using MyShop.Domain.Entities;
-using MyShop.Domain.IRepositories;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,27 +21,32 @@ namespace MyShop.Application
     /// <summary>
     /// 商品服务
     /// </summary>
+    
     public class ProductApplicationService : ApplicationService, IProductApplicationService
     {
         /// <summary>
         /// 自定义商品仓储
         /// </summary>
-        private readonly IProductRepository _productRepository;
+        private readonly IRepository<Product> _productRepository;
 
         /// <summary>
         /// 商品类别仓储
         /// </summary>
         private readonly IRepository<Category> _categoryRepository;
 
+        private readonly IRepository<ProductAttachment> _productAttachmentRepository;
         /// <summary>
         /// 构造
         /// </summary>
-        /// <param name="productRepository">自定义商品仓储</param>
+        /// <param name="productRepository">商品仓储</param>
+        /// <param name="productAttachmentRepository">商品附件仓储</param>
         /// <param name="categoryRepository">商品类别仓储</param>
-        public ProductApplicationService(IProductRepository productRepository,
+        public ProductApplicationService(IRepository<Product> productRepository, 
+            IRepository<ProductAttachment> productAttachmentRepository,
             IRepository<Category> categoryRepository)
         {
             _productRepository = productRepository;
+            _productAttachmentRepository = productAttachmentRepository;
             _categoryRepository = categoryRepository;
         }
 
@@ -51,9 +55,30 @@ namespace MyShop.Application
         /// </summary>
         /// <param name="id">商品id</param>
         /// <returns></returns>
-        public async Task<ProductItemDto> GetAsync(long id)
+        [Authorize]
+        public async Task<BaseResult<ProductDetailsDto>> GetAsync(long id)
         {
-            return await Task.FromResult(Query(p => p.Id == id).FirstOrDefault(p =>p.Id == id));
+            var query = Query(p => p.Id == id).FirstOrDefault();
+            if (query != null) 
+            {
+                var details = Task.Run(()=> 
+                {
+                    var result = ObjectMapper.Map<ProductItemDto, ProductDetailsDto>(query);
+                    var attachments = _productAttachmentRepository.Where(p => p.ProductId == query.Id).ToList();
+                    if (attachments.Any())
+                    {
+                        result.Images = attachments.Where(p => p.Type == ProductAttachmentType.Image).Select(x => x.Content).ToList();
+                        result.Summary = attachments.FirstOrDefault(p => p.Type == ProductAttachmentType.Summary)?.Content;
+                    }
+                    else 
+                    {
+                        result.Images = new List<string>() { query.CoverImage };
+                    }
+                    return result;
+                });
+                return BaseResult<ProductDetailsDto>.Success(await details);
+            }
+            return BaseResult<ProductDetailsDto>.Error("获取商品信息失败!");
         }
 
         /// <summary>
@@ -61,6 +86,7 @@ namespace MyShop.Application
         /// </summary>
         /// <param name="page">分页信息</param>
         /// <returns></returns>
+        [AllowAnonymous]
         public PagedResult<ProductItemDto> GetPage(BasePageInput page)
         {
             var query = Query()
@@ -75,7 +101,7 @@ namespace MyShop.Application
 
         private IQueryable<ProductItemDto> Query(Expression<Func<Product,bool>> expression = null) 
         {
-            var products = _productRepository.WhereIf(expression != null, expression);
+            var products = _productRepository.AsQueryable().WhereIf(expression != null, expression) ;
 
             var categories = _categoryRepository;
 

@@ -33,7 +33,13 @@
             移除物品
             </summary>
             <param name="input">请求信息</param>
-            <param name="pid">商品id</param>
+            <returns></returns>
+        </member>
+        <member name="M:MyShop.Application.BasketApplicationService.ChangeAsync(MyShop.Application.Contract.Basket.Dto.ChangeBasketItemDto)">
+            <summary>
+            修改物品数量
+            </summary>
+            <param name="input">请求信息</param>
             <returns></returns>
         </member>
         <member name="M:MyShop.Application.BasketApplicationService.ClearAsync">
@@ -86,11 +92,12 @@
             商品类别仓储
             </summary>
         </member>
-        <member name="M:MyShop.Application.ProductApplicationService.#ctor(MyShop.Domain.IRepositories.IProductRepository,Volo.Abp.Domain.Repositories.IRepository{MyShop.Domain.Entities.Category})">
+        <member name="M:MyShop.Application.ProductApplicationService.#ctor(Volo.Abp.Domain.Repositories.IRepository{MyShop.Domain.Entities.Product},Volo.Abp.Domain.Repositories.IRepository{MyShop.Domain.Entities.ProductAttachment},Volo.Abp.Domain.Repositories.IRepository{MyShop.Domain.Entities.Category})">
             <summary>
             构造
             </summary>
-            <param name="productRepository">自定义商品仓储</param>
+            <param name="productRepository">商品仓储</param>
+            <param name="productAttachmentRepository">商品附件仓储</param>
             <param name="categoryRepository">商品类别仓储</param>
         </member>
         <member name="M:MyShop.Application.ProductApplicationService.GetAsync(System.Int64)">

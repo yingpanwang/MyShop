@@ -13,6 +13,6 @@ namespace MyShop.Application.Contract.Product
     public interface IProductApplicationService :IApplicationService
     {
         PagedResult<ProductItemDto> GetPage(BasePageInput page);
-        Task<ProductItemDto> GetAsync(long id);
+        Task<BaseResult<ProductDetailsDto>> GetAsync(long id);
     }
 }

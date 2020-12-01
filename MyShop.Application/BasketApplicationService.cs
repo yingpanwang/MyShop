@@ -24,6 +24,7 @@ namespace MyShop.Application
     /// <summary>
     /// 购物车服务
     /// </summary>
+    [Authorize]
     public class BasketApplicationService : ApplicationService, IBasketApplicationService
     {
         private readonly ConnectionMultiplexer _redis;
@@ -45,6 +46,7 @@ namespace MyShop.Application
         /// <returns></returns>
         public async Task<ListResult<BasketItemDto>> GetAsync() 
         {
+
             var store = _redis.GetDatabase(MyShopRedisConfig.BASKETDBNUMBER);
             var userId = CurrentUser.Id;
             var key = $"{MyShopRedisConfig.BASKETKEY_PRE}:{userId}";
@@ -80,8 +82,9 @@ namespace MyShop.Application
             var userId = CurrentUser.Id;
             var key = $"{MyShopRedisConfig.BASKETKEY_PRE}:{userId}";
 
-            var basket = store.HashGetAll(key);
-            if (basket.Any(x => x.Name == pid))
+            var basketItem = await store.HashGetAsync(key,pid);
+            
+            if (!basketItem.IsNullOrEmpty)
             {
                 await store.HashIncrementAsync(key, pid);
             }
@@ -94,7 +97,7 @@ namespace MyShop.Application
                     {
                         return BaseResult<object>.Failed("商品已下架!");
                     }
-                    await store.HashSetAsync(key, new HashEntry[] { new HashEntry(pid, 1) });
+                    await store.HashIncrementAsync(key, pid);
                 }
                 else 
                 {
@@ -102,14 +105,13 @@ namespace MyShop.Application
                 }
             }
 
-            return BaseResult<object>.Success(new { Pid = pid });
+            return BaseResult<object>.Success();
         }
 
         /// <summary>
         /// 移除物品
         /// </summary>
         /// <param name="input">请求信息</param>
-        /// <param name="pid">商品id</param>
         /// <returns></returns>
         public async Task<BaseResult<object>> RemoveAsync(RemoveBasketItemDto input)
         {
@@ -118,20 +120,43 @@ namespace MyShop.Application
             var userId = CurrentUser.Id;
             var key = $"{MyShopRedisConfig.BASKETKEY_PRE}:{userId}";
 
-            var basket = store.HashGetAll(key);
-            if (basket.Any(x => x.Name == pid))
+            var basketItem = await store.HashGetAsync(key,pid);
+            if (!basketItem.IsNullOrEmpty)
             {
-                await store.HashDecrementAsync(key, pid);
-                double count = (double)await store.HashGetAsync(key, pid);
-                if(count <= 0) 
+                if (!input.Clear)
+                {
+                    long count = await store.HashDecrementAsync(key, pid);
+                    if (count <= 0)
+                    {
+                        await store.HashDeleteAsync(key, pid);
+                    }
+                }
+                else 
                 {
                     await store.HashDeleteAsync(key, pid);
                 }
             }
 
-            return BaseResult<object>.Success(null);
+            return BaseResult<object>.Success();
         }
 
+
+        /// <summary>
+        /// 修改物品数量
+        /// </summary>
+        /// <param name="input">请求信息</param>
+        /// <returns></returns>
+        public async Task<BaseResult<object>> ChangeAsync(ChangeBasketItemDto input)
+        {
+            long pid = input.PId;
+            var store = _redis.GetDatabase(MyShopRedisConfig.BASKETDBNUMBER);
+            var userId = CurrentUser.Id;
+            var key = $"{MyShopRedisConfig.BASKETKEY_PRE}:{userId}";
+
+            await store.HashSetAsync(key, new HashEntry[] { new HashEntry(pid, input.Count) });
+
+            return BaseResult<object>.Success();
+        }
 
         /// <summary>
         /// 清空购物车
@@ -146,7 +171,8 @@ namespace MyShop.Application
 
             await store.KeyDeleteAsync(key);
 
-            return BaseResult<object>.Success(null);
+            return BaseResult<object>.Success();
         }
+
     }
 }

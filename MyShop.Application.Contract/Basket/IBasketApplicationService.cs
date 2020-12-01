@@ -24,14 +24,22 @@ namespace MyShop.Application.Contract.Basket
         /// <summary>
         /// 添加商品
         /// </summary>
-        /// <param name="pid">商品id</param>
+        /// <param name="input">商品id</param>
         /// <returns></returns>
         Task<BaseResult<object>> AddAsync(AddBasketItemDto input);
 
         /// <summary>
+        /// 修改商品数量
+        /// </summary>
+        /// <param name="input">修改请求</param>
+        /// <returns></returns>
+        Task<BaseResult<object>> ChangeAsync(ChangeBasketItemDto input);
+
+
+        /// <summary>
         /// 移除商品
         /// </summary>
-        /// <param name="pid">商品id</param>
+        /// <param name="input">商品id</param>
         /// <returns></returns>
         Task<BaseResult<object>> RemoveAsync(RemoveBasketItemDto input);
 
